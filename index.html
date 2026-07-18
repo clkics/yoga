@@ -2,399 +2,671 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>간장공장공장장</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>몸으로 한글 — 놀이</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; background:#2c2418; min-height:100vh;
-       display:flex; align-items:flex-start; justify-content:center; padding:16px 0; color:#333; }
-.screen { width:min(860px, 96vw); }
+  :root{
+    --sky:#FFF4D6;         /* 따뜻한 크림-노랑 배경 */
+    --sky2:#FFE8B0;
+    --ink:#3A2E2A;
+    --ink-soft:#8A7A6E;
+    --coral:#FF7A59;       /* 아빠/주 액센트 */
+    --mint:#37C9A8;        /* 아이/성공 */
+    --grape:#7B6CF6;       /* 포인트 */
+    --sun:#FFC93C;         /* 별/보상 */
+    --paper:#FFFFFF;
+    --line:#F0E3C8;
+    --shadow:0 8px 0 rgba(58,46,42,.12);
+    --round:22px;
+    --display:"Jua","Gaegu",-apple-system,sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;user-select:none}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:var(--display);color:var(--ink);
+    background:linear-gradient(170deg,var(--sky) 0%,var(--sky2) 100%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  #app{width:100%;height:100%;max-width:960px;position:relative}
 
-/* ---------- 설정 ---------- */
-.setup { background:#f5f1e8; border-radius:20px; padding:36px 32px; text-align:center; }
-.setup h1 { font-size:30px; color:#5a4a1e; margin-bottom:6px; }
-.setup .tag { color:#998a60; font-size:14px; margin-bottom:24px; }
-.setup h3 { font-size:15px; color:#6b5b2e; margin:18px 0 8px; text-align:left; }
-.optrow { display:flex; gap:8px; flex-wrap:wrap; }
-.opt { flex:1; min-width:90px; padding:12px 6px; border-radius:12px; border:2px solid #d8c9a0; background:#fff;
-       cursor:pointer; font-size:15px; font-weight:bold; color:#6b5b2e; }
-.opt small { display:block; font-weight:normal; font-size:11px; color:#a99; margin-top:3px; }
-.opt.sel { background:#6b5b2e; color:#fff; border-color:#6b5b2e; }
-.opt.sel small { color:#e8dcc0; }
-.startbtn { margin-top:26px; width:100%; padding:16px; font-size:19px; font-weight:bold; color:#fff;
-            background:#c0392b; border:none; border-radius:14px; cursor:pointer; }
-.rulebox { margin-top:18px; text-align:left; font-size:12px; color:#8a7b50; line-height:1.7; background:#efe8d8; border-radius:10px; padding:12px 16px; }
+  button{font-family:var(--display);cursor:pointer;border:none;background:none}
 
-/* ---------- 게임 ---------- */
-.game { display:none; background:#f5f1e8; border-radius:20px; padding:18px 22px 24px; }
-.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; color:#8a7b50; font-weight:bold; }
-.players { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-.pl { flex:1; min-width:80px; background:#fff; border:2px solid #ddd; border-radius:12px; padding:7px 4px; text-align:center; }
-.pl.active { border-color:#c0392b; background:#fdf0ee; }
-.pl .nm { font-size:12px; color:#777; } .pl.active .nm { color:#c0392b; font-weight:bold; }
-.pl .sc { font-size:19px; font-weight:800; } .pl .sc small { font-size:11px; font-weight:normal; color:#999; }
+  /* ══ 공통 화면 전환 ══ */
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.active{display:flex}
 
-.boardwrap { background:#e9e2d0; border-radius:14px; padding:12px; min-height:170px; margin-bottom:12px; }
-.boardlabel { font-size:12px; color:#8a7b50; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; }
-.board { display:grid; gap:8px; }
-.board.lg { grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); }
-.board.md { grid-template-columns:repeat(auto-fill, minmax(112px,1fr)); }
-.board.sm { grid-template-columns:repeat(auto-fill, minmax(88px,1fr)); }
-.bcard { background:#fffdf5; border:2px solid #d8c9a0; border-radius:10px; text-align:center; position:relative;
-         padding:16px 4px 10px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; }
-.bcard.trap { background:#e8f1fb; border-color:#5f8fc9; }
-.bcard.new { border-color:#c0392b; box-shadow:0 0 0 3px rgba(192,57,43,.25); }
-.bcard .no { position:absolute; top:3px; left:6px; font-size:10px; color:#b0a070; font-weight:bold; }
-.bcard .newtag { position:absolute; top:3px; right:5px; font-size:9px; background:#c0392b; color:#fff; border-radius:6px; padding:1px 5px; font-weight:bold; }
-.bcard .emo { line-height:1.05; }
-.board.lg .emo { font-size:40px; } .board.md .emo { font-size:26px; } .board.sm .emo { display:none; }
-.board.sm.age5 .emo { display:block; font-size:34px; }
-.bcard .w { font-weight:800; word-break:keep-all; line-height:1.85; }
-.board.lg .w { font-size:17px; } .board.md .w { font-size:14px; } .board.sm .w { font-size:12.5px; }
-.bcard.trap .w { color:#1a4d8f; }
-.bcard.speaking { animation:pulse 0.9s infinite; border-color:#2e6fe0; }
-@keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(46,111,224,.4);} 50%{box-shadow:0 0 0 9px rgba(46,111,224,.12);} }
-.syl { position:relative; display:inline-block; }
-.syl.b::before, .syl.r::before { content:'●'; position:absolute; top:-0.95em; left:50%; transform:translateX(-50%); font-size:.4em; }
-.syl.b::before { color:#2e6fe0; } .syl.r::before { color:#e0472f; }
-.empty { grid-column:1/-1; text-align:center; color:#b0a070; font-size:14px; padding:38px 0; }
+  /* ══ 타이틀 ══ */
+  #titleScreen{align-items:center;justify-content:center;gap:26px;padding:24px;text-align:center}
+  .logo-body{font-size:clamp(2.6rem,9vw,4.4rem);color:var(--coral);line-height:1;
+    text-shadow:3px 3px 0 #fff, 6px 6px 0 rgba(255,122,89,.25)}
+  .logo-sub{font-size:1.05rem;color:var(--ink-soft);margin-top:-6px}
+  .mascot{font-size:5rem;animation:bob 2s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+  .start-btns{display:flex;flex-direction:column;gap:14px;width:min(340px,80vw)}
+  .big-start{
+    font-size:1.5rem;color:#fff;padding:18px;border-radius:var(--round);
+    box-shadow:var(--shadow);transition:transform .12s;
+  }
+  .big-start:active{transform:translateY(3px);box-shadow:0 4px 0 rgba(58,46,42,.12)}
+  .bs-solo{background:var(--mint)}
+  .bs-duo{background:var(--coral)}
+  .note{font-size:.82rem;color:var(--ink-soft);line-height:1.6;max-width:360px}
 
-.bottom { display:flex; gap:14px; align-items:stretch; }
-.deck { width:130px; min-height:120px; border-radius:12px; cursor:pointer; flex-shrink:0;
-        background:repeating-linear-gradient(45deg,#7a3b2e,#7a3b2e 10px,#8a4b3e 10px,#8a4b3e 20px);
-        color:#f5e6c8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-        font-weight:800; font-size:15px; box-shadow:0 4px 10px rgba(0,0,0,.25); }
-.deck .cnt { font-size:12px; font-weight:normal; opacity:.9; }
-.deck.done { opacity:.4; cursor:default; }
-.special-show { flex-shrink:0; width:130px; border-radius:12px; background:#fbeee8; border:2px solid #d99b7f;
-                display:none; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px; text-align:center; }
-.special-show .emo { font-size:30px; } .special-show .nm { font-weight:800; font-size:14px; }
-.rightpane { flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center; }
-.timerwrap { height:12px; background:#e5dcc5; border-radius:6px; overflow:hidden; visibility:hidden; }
-.timerbar { height:100%; width:100%; background:linear-gradient(90deg,#27ae60,#f1c40f,#c0392b); }
-.timerlabel { font-size:11px; color:#a99a70; text-align:right; min-height:14px; }
-.msg { font-size:15px; font-weight:bold; color:#6b5b2e; min-height:22px; }
-.ctrl { display:flex; gap:8px; flex-wrap:wrap; }
-.btn { padding:12px 22px; font-size:16px; font-weight:bold; border:none; border-radius:12px; cursor:pointer; color:#fff; }
-.btn.ok { background:#27ae60; } .btn.no { background:#c0392b; } .btn.nx { background:#6b5b2e; } .btn.pk { background:#3d76c2; }
-.btn.tts { background:#8a6bbf; }
-.help { text-align:center; font-size:12px; color:#a99a70; margin-top:12px; }
+  /* ══ 정복지도(스테이지 선택) ══ */
+  #mapScreen{padding:18px}
+  .map-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .icon-btn{width:44px;height:44px;border-radius:14px;background:var(--paper);
+    box-shadow:var(--shadow);font-size:1.3rem;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+  .map-title{font-size:1.3rem;color:var(--ink)}
+  .star-count{margin-left:auto;background:var(--paper);border-radius:14px;padding:8px 16px;
+    box-shadow:var(--shadow);font-size:1.1rem;color:var(--sun)}
+  .star-count b{color:var(--ink)}
+  .map-scroll{flex:1;overflow-y:auto;padding:6px 2px 20px}
+  .stage-group{margin-bottom:18px}
+  .stage-label{font-size:1rem;color:var(--ink-soft);margin:0 0 10px 4px;display:flex;align-items:center;gap:8px}
+  .stage-label .badge{background:var(--grape);color:#fff;font-size:.72rem;padding:2px 10px;border-radius:999px}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:12px}
+  .tile{
+    aspect-ratio:1;border-radius:18px;background:var(--paper);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
+    font-size:2.1rem;color:var(--ink);transition:transform .12s;
+  }
+  .tile:active{transform:scale(.94)}
+  .tile.duo{background:linear-gradient(145deg,#fff 60%,#FFE0D6)}
+  .tile .ministar{position:absolute;bottom:5px;font-size:.72rem;color:var(--sun);letter-spacing:-2px}
+  .tile.locked{opacity:.4;filter:grayscale(.6)}
+  .tile.locked::after{content:"🔒";position:absolute;font-size:1.1rem;bottom:5px;right:7px}
+  .tile.cleared{outline:3px solid var(--mint);outline-offset:-3px}
 
-/* ---------- 종료 ---------- */
-.over { display:none; background:#f5f1e8; border-radius:20px; padding:48px 32px; text-align:center; }
-.over h1 { font-size:26px; color:#5a4a1e; margin-bottom:10px; }
-.over .win { font-size:36px; font-weight:800; color:#c0392b; margin:14px 0 22px; }
-.over table { margin:0 auto 26px; border-collapse:collapse; font-size:16px; }
-.over td { padding:6px 18px; border-bottom:1px solid #ddd; }
+  /* ══ 게임 플레이 ══ */
+  #playScreen{background:#1a1420}
+  #camWrap{position:absolute;inset:0;overflow:hidden}
+  video{position:absolute;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+  #poseCanvas{position:absolute;width:100%;height:100%;transform:scaleX(-1)}
+
+  /* 상단 바 */
+  #playTop{position:absolute;top:0;left:0;right:0;padding:12px 16px;z-index:6;
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(180deg,rgba(26,20,32,.6),transparent)}
+  #playTop .icon-btn{background:rgba(255,255,255,.9)}
+  #targetGlyph{font-size:2.6rem;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.4);min-width:50px;text-align:center}
+  #playHint{color:#fff;font-size:1.05rem;text-shadow:1px 1px 3px rgba(0,0,0,.6);flex:1;line-height:1.3}
+  #comboBox{background:rgba(255,201,60,.95);color:var(--ink);border-radius:14px;padding:6px 12px;
+    font-size:.95rem;display:none}
+
+  /* 시범 애니메이션 오버레이 */
+  #demoOverlay{position:absolute;inset:0;z-index:7;background:rgba(26,20,32,.82);
+    display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+  #demoCanvas{width:min(70vw,340px);height:auto;background:rgba(255,255,255,.06);border-radius:24px}
+  #demoText{color:#fff;font-size:1.3rem;text-align:center;padding:0 20px;line-height:1.4}
+  #demoSpeak{font-size:3rem;color:var(--sun);min-height:3.4rem}
+  #demoBtn{margin-top:6px;background:var(--mint);color:#fff;font-size:1.2rem;padding:14px 36px;
+    border-radius:var(--round);box-shadow:var(--shadow)}
+
+  /* 근접도 게이지 */
+  #gaugeWrap{position:absolute;bottom:120px;left:50%;transform:translateX(-50%);z-index:6;
+    width:min(74vw,320px);display:none}
+  #gaugeTrack{height:22px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;
+    border:2px solid rgba(255,255,255,.5)}
+  #gaugeFill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--coral),var(--mint));
+    transition:width .12s}
+  #gaugeLabel{text-align:center;color:#fff;font-size:.95rem;margin-top:6px;text-shadow:1px 1px 2px rgba(0,0,0,.6)}
+
+  /* 하단 조작 */
+  #playBottom{position:absolute;bottom:0;left:0;right:0;padding:16px;z-index:6;
+    display:flex;gap:12px;justify-content:center;
+    background:linear-gradient(0deg,rgba(26,20,32,.6),transparent)}
+  .play-btn{background:rgba(255,255,255,.92);color:var(--ink);font-size:1.05rem;
+    padding:13px 22px;border-radius:16px;box-shadow:var(--shadow)}
+  .play-btn.primary{background:var(--sun)}
+
+  /* 상태 안내 (사람 감지 등) */
+  #statusChip{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:6;
+    background:rgba(0,0,0,.55);color:#fff;padding:8px 18px;border-radius:999px;font-size:.9rem;display:none}
+
+  /* ══ 성공 이펙트 ══ */
+  #winOverlay{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
+    flex-direction:column;gap:10px;background:rgba(26,20,32,.5);backdrop-filter:blur(2px)}
+  #winGlyph{font-size:9rem;color:#fff;text-shadow:0 0 30px var(--sun),4px 4px 0 var(--coral);
+    animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
+  #winSpeak{font-size:2.4rem;color:var(--sun)}
+  #winStars{font-size:2.6rem;letter-spacing:6px}
+  #winStars span{display:inline-block;animation:starPop .4s backwards}
+  @keyframes starPop{0%{transform:scale(0) translateY(20px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+  #winRecord{color:#fff;font-size:1.2rem;background:rgba(255,122,89,.9);padding:8px 20px;border-radius:999px;display:none}
+  #winNext{margin-top:14px;background:var(--mint);color:#fff;font-size:1.4rem;padding:16px 44px;
+    border-radius:var(--round);box-shadow:var(--shadow)}
+  .confetti{position:absolute;top:-20px;font-size:1.6rem;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.2}}
+
+  /* 로딩 */
+  #loading{position:absolute;inset:0;z-index:20;background:var(--sky);display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:18px}
+  #loading .mascot{font-size:4rem}
+  #loadingText{font-size:1.2rem;color:var(--ink-soft)}
+  #errText{color:var(--coral);font-size:.95rem;max-width:80vw;text-align:center;line-height:1.6;display:none}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div id="app">
 
-<div class="screen setup" id="setup">
-  <h1>🏭 간장공장공장장</h1>
-  <div class="tag">판에 쌓인 카드를 처음부터 끝까지, 실수 없이!</div>
-  <h3>연령</h3><div class="optrow" id="ageRow"></div>
-  <h3>모드</h3><div class="optrow" id="modeRow"></div>
-  <h3>인원</h3><div class="optrow" id="plRow"></div>
-  <button class="startbtn" onclick="startGame()">게임 시작 (Enter)</button>
-  <div class="rulebox">
-    ① 내 차례에 카드 더미를 뒤집으면 판에 카드가 한 장 추가돼요.<br>
-    ② 판의 <b>1번 카드부터 새 카드까지 전부</b> 순서대로 읽어요. 판정은 함께 듣는 사람이!<br>
-    ③ 실패하면 판의 카드를 전부 벌점으로 가져가요. 판이 가득 찬 상태에서 성공하면 라운드 클리어!<br>
-    ④ 카드 더미가 떨어지면 게임 끝 — <b>벌점 카드가 가장 적은 사람이 승리</b>
-  </div>
-</div>
-
-<div class="screen game" id="game">
-  <div class="topbar"><div id="modeinfo"></div><div id="dirinfo"></div></div>
-  <div class="players" id="players"></div>
-  <div class="boardwrap">
-    <div class="boardlabel"><span id="boardcount"></span><span id="boardcap"></span></div>
-    <div class="board" id="board"></div>
-  </div>
-  <div class="bottom">
-    <div class="deck" id="deck" onclick="onDeck()"><div>카드 더미</div><div class="cnt" id="deckcnt"></div></div>
-    <div class="special-show" id="specialshow"></div>
-    <div class="rightpane">
-      <div class="msg" id="msg"></div>
-      <div class="timerwrap" id="timerwrap"><div class="timerbar" id="timerbar"></div></div>
-      <div class="timerlabel" id="timerlabel"></div>
-      <div class="ctrl" id="ctrl"></div>
+  <!-- 타이틀 -->
+  <section class="screen active" id="titleScreen">
+    <div class="mascot">🧍</div>
+    <div>
+      <div class="logo-body">몸으로 한글</div>
+      <div class="logo-sub">내 몸으로 글자를 만들어요</div>
     </div>
+    <div class="start-btns">
+      <button class="big-start bs-solo" data-mode="solo">🧒 혼자 하기</button>
+      <button class="big-start bs-duo" data-mode="duo">👨‍👧 아빠랑 하기</button>
+    </div>
+    <p class="note">카메라로 몸동작을 봐요. 사진은 저장되지 않고 이 기기 안에서만 쓰여요.<br>넓은 곳에서 온몸이 보이게 서주세요.</p>
+  </section>
+
+  <!-- 정복지도 -->
+  <section class="screen" id="mapScreen">
+    <div class="map-head">
+      <button class="icon-btn" id="mapBack">←</button>
+      <div class="map-title">글자 지도</div>
+      <div class="star-count">⭐ <b id="totalStars">0</b></div>
+    </div>
+    <div class="map-scroll" id="mapScroll"></div>
+  </section>
+
+  <!-- 게임 -->
+  <section class="screen" id="playScreen">
+    <div id="camWrap">
+      <video id="video" playsinline autoplay muted></video>
+      <canvas id="poseCanvas"></canvas>
+    </div>
+
+    <div id="playTop">
+      <button class="icon-btn" id="playBack">←</button>
+      <div id="targetGlyph">ㅏ</div>
+      <div id="playHint">몸으로 만들어봐요!</div>
+      <div id="comboBox">🔥 <span id="comboNum">0</span></div>
+    </div>
+
+    <div id="statusChip"></div>
+
+    <div id="gaugeWrap">
+      <div id="gaugeTrack"><div id="gaugeFill"></div></div>
+      <div id="gaugeLabel">비슷해지고 있어요…</div>
+    </div>
+
+    <div id="playBottom">
+      <button class="play-btn" id="demoAgainBtn">👀 다시 보기</button>
+      <button class="play-btn primary" id="skipBtn">건너뛰기</button>
+    </div>
+
+    <!-- 시범 -->
+    <div id="demoOverlay">
+      <div id="demoSpeak">아</div>
+      <canvas id="demoCanvas" width="340" height="360"></canvas>
+      <div id="demoText">이렇게 만들어요!</div>
+      <button id="demoBtn">해볼래요! →</button>
+    </div>
+
+    <!-- 성공 -->
+    <div id="winOverlay">
+      <div id="winGlyph">ㅏ</div>
+      <div id="winSpeak">아</div>
+      <div id="winStars"></div>
+      <div id="winRecord"></div>
+      <button id="winNext">다음 →</button>
+    </div>
+  </section>
+
+  <!-- 로딩 -->
+  <div id="loading">
+    <div class="mascot">🧍</div>
+    <div id="loadingText">카메라 준비 중…</div>
+    <div id="errText"></div>
   </div>
-  <div class="help">Enter/더미 클릭 = 카드 추가 · O = 성공, X = 실패 · 파란카드는 어순이 섞여 있어요(파란점=앞으로 온 글자, 빨간점=뒤로 간 글자)</div>
+
 </div>
 
-<div class="screen over" id="over">
-  <h1>게임 종료!</h1>
-  <div class="win" id="winner"></div>
-  <table id="finalScores"></table>
-  <button class="startbtn" onclick="location.reload()">다시 하기</button>
-</div>
+<script type="module">
+import { PoseLandmarker, FilesetResolver }
+  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-<script>
-const DATA = {"version": "3.1", "game": "간장공장공장장 앱 (가칭)", "notes": ["일반카드: 단어 자체의 발음 꼬임이 난이도의 핵심. 성인/15세는 인터넷 경험담(인스티즈, 루리웹, 절대음감 놀이)에서 수집한 실제 어려운 단어 + 난이도 공식(ㅡ+ㄹ연속, 격음경음교차, 유사음절반복, 외래어ㅍㅊ연쇄)으로 창작한 단어.", "함정카드(파란카드): 원본 단어의 블록 어순을 뒤섞은 것. 예: 검은색반팔티 → 반팔색검은티. 자리가 바뀐 블록의 모든 글자 위에 점 표시 — 앞으로 온 블록은 파란점(blueDots), 뒤로 간 블록은 빨간점(redDots). base는 원본(화면 비노출).", "emoji는 프로토타입용 이미지 플레이스홀더. 정식 버전은 일러스트로 교체.", "age5는 TTS로 읽어주며 현재 카드 하이라이트 → 따라 말하기.", "누적 읽기: 뒤집힌 카드는 판에 쌓이고, 자기 차례에 1번부터 새 카드까지 전부 읽는다.", "제한시간 = perCardSec × 판 카드 수. 전문가 모드는 ×0.7. age5는 시간 무제한.", "라운드: 실패하면 판의 카드 전부를 벌점으로 가져가고 판을 비운다. boardCap 도달 상태에서 성공하면 라운드 클리어(판 정리, 벌점 없음). 게임 종료 시 벌점 카드가 가장 적은 사람이 승리.", "age5: 판 상한 8장 + 카드 항상 대형(그림 필수 노출). TTS가 판 전체를 순서대로 읽어주며 현재 카드 하이라이트."], "ageSettings": {"age5": {"label": "5세", "tts": true, "highlight": true, "imageRequired": true, "perCardSec": null, "boardCap": 8, "cardSize": "large"}, "age10": {"label": "10세", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 5, "boardCap": 10, "cardSize": "auto"}, "age15": {"label": "15세", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 3.5, "boardCap": 12, "cardSize": "auto"}, "adult": {"label": "성인", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 2.5, "boardCap": 12, "cardSize": "auto"}}, "modes": {"basic": {"label": "기본", "cards": ["normal"]}, "advanced": {"label": "심화", "cards": ["normal", "trap"]}, "expert": {"label": "전문가", "cards": ["normal", "trap", "special"], "timeMultiplier": 0.7}}, "specialCards": [{"id": "reverse", "name": "방향전환", "count": 2, "emoji": "🔄", "effect": "진행 방향이 반대로 바뀐다"}, {"id": "encore", "name": "한번더", "count": 2, "emoji": "🔁", "effect": "직전 카드를 다음 차례 사람이 한 번 더 읽는다"}, {"id": "pass", "name": "패스", "count": 2, "emoji": "⏭️", "effect": "자기 차례를 다음 사람에게 넘긴다"}, {"id": "together", "name": "다같이", "count": 2, "emoji": "📣", "effect": "전원이 동시에 다음 카드를 읽는다. 가장 늦거나 틀린 사람이 벌점"}], "ages": {"age5": {"normal": [{"text": "사과", "emoji": "🍎"}, {"text": "바나나", "emoji": "🍌"}, {"text": "포도", "emoji": "🍇"}, {"text": "수박", "emoji": "🍉"}, {"text": "딸기", "emoji": "🍓"}, {"text": "토마토", "emoji": "🍅"}, {"text": "당근", "emoji": "🥕"}, {"text": "옥수수", "emoji": "🌽"}, {"text": "고구마", "emoji": "🍠"}, {"text": "버섯", "emoji": "🍄"}, {"text": "코끼리", "emoji": "🐘"}, {"text": "기린", "emoji": "🦒"}, {"text": "사자", "emoji": "🦁"}, {"text": "호랑이", "emoji": "🐯"}, {"text": "토끼", "emoji": "🐰"}, {"text": "거북이", "emoji": "🐢"}, {"text": "펭귄", "emoji": "🐧"}, {"text": "돌고래", "emoji": "🐬"}, {"text": "문어", "emoji": "🐙"}, {"text": "나비", "emoji": "🦋"}, {"text": "꿀벌", "emoji": "🐝"}, {"text": "병아리", "emoji": "🐤"}, {"text": "강아지", "emoji": "🐶"}, {"text": "고양이", "emoji": "🐱"}, {"text": "다람쥐", "emoji": "🐿️"}, {"text": "원숭이", "emoji": "🐵"}, {"text": "하마", "emoji": "🦛"}, {"text": "악어", "emoji": "🐊"}, {"text": "상어", "emoji": "🦈"}, {"text": "비행기", "emoji": "✈️"}, {"text": "자동차", "emoji": "🚗"}, {"text": "버스", "emoji": "🚌"}, {"text": "기차", "emoji": "🚂"}, {"text": "소방차", "emoji": "🚒"}, {"text": "경찰차", "emoji": "🚓"}, {"text": "자전거", "emoji": "🚲"}, {"text": "로켓", "emoji": "🚀"}, {"text": "헬리콥터", "emoji": "🚁"}, {"text": "우산", "emoji": "☂️"}, {"text": "무지개", "emoji": "🌈"}, {"text": "눈사람", "emoji": "⛄"}, {"text": "별똥별", "emoji": "🌠"}, {"text": "구름", "emoji": "☁️"}, {"text": "나무", "emoji": "🌳"}, {"text": "바다", "emoji": "🌊"}, {"text": "도넛", "emoji": "🍩"}, {"text": "케이크", "emoji": "🍰"}, {"text": "피자", "emoji": "🍕"}, {"text": "김밥", "emoji": "🍙"}, {"text": "우유", "emoji": "🥛"}], "trap": [{"text": "리끼코", "base": "코끼리", "emoji": "🐘", "blueDots": [0], "redDots": [2]}, {"text": "나바나", "base": "바나나", "emoji": "🍌", "blueDots": [0], "redDots": [1]}, {"text": "개지무", "base": "무지개", "emoji": "🌈", "blueDots": [0], "redDots": [2]}, {"text": "차동자", "base": "자동차", "emoji": "🚗", "blueDots": [0], "redDots": [2]}, {"text": "기행비", "base": "비행기", "emoji": "✈️", "blueDots": [0], "redDots": [2]}, {"text": "사람눈", "base": "눈사람", "emoji": "⛄", "blueDots": [0, 1], "redDots": [2]}, {"text": "지아강", "base": "강아지", "emoji": "🐶", "blueDots": [0], "redDots": [2]}, {"text": "이양고", "base": "고양이", "emoji": "🐱", "blueDots": [0], "redDots": [2]}, {"text": "차방소", "base": "소방차", "emoji": "🚒", "blueDots": [0], "redDots": [2]}, {"text": "이북거", "base": "거북이", "emoji": "🐢", "blueDots": [0], "redDots": [2]}]}, "age10": {"normal": [{"text": "건곤감리", "emoji": "🇰🇷"}, {"text": "샘속송사리", "emoji": "🐟"}, {"text": "간장공장", "emoji": "🏭"}, {"text": "공장공장장", "emoji": "👷"}, {"text": "콩깍지깍지", "emoji": "🫛"}, {"text": "딸기찰떡", "emoji": "🍓"}, {"text": "찹쌀찐빵", "emoji": "🥟"}, {"text": "청포도풍선", "emoji": "🎈"}, {"text": "삼각김밥상", "emoji": "🍙"}, {"text": "김치찌개집", "emoji": "🍲"}, {"text": "짬뽕찜닭", "emoji": "🍜"}, {"text": "떡볶이볶기", "emoji": "🍢"}, {"text": "산삼장수", "emoji": "🌿"}, {"text": "솔숲산새", "emoji": "🐦"}, {"text": "도둑돛단배", "emoji": "⛵"}, {"text": "달콤딸기잼", "emoji": "🫙"}, {"text": "병뚜껑뚜껑", "emoji": "🍾"}, {"text": "꿀꺽꿀꺽", "emoji": "🥤"}, {"text": "쑥쑥쑥갓", "emoji": "🥬"}, {"text": "짹짹참새", "emoji": "🐦"}, {"text": "까치깍깍", "emoji": "🐦‍⬛"}, {"text": "콩콩콩나물", "emoji": "🌱"}, {"text": "햅쌀쌀밥", "emoji": "🍚"}, {"text": "뻥튀기튀김", "emoji": "🍘"}, {"text": "꼬불꼬불길", "emoji": "🛣️"}, {"text": "빙글뱅글", "emoji": "🌀"}, {"text": "알록달록", "emoji": "🌈"}, {"text": "울퉁불퉁길", "emoji": "🚧"}, {"text": "얼룩덜룩", "emoji": "🐄"}, {"text": "곰곰곰돌이", "emoji": "🧸"}, {"text": "총총총각무", "emoji": "🥕"}, {"text": "늠름낙타", "emoji": "🐫"}, {"text": "낄낄깔깔", "emoji": "😂"}, {"text": "씩씩쑥쑥", "emoji": "💪"}, {"text": "짤랑잘랑", "emoji": "🔔"}, {"text": "철렁출렁", "emoji": "🌊"}, {"text": "파릇포릇", "emoji": "🌿"}, {"text": "오돌토돌", "emoji": "🥒"}, {"text": "우당탕탕", "emoji": "💥"}, {"text": "곤드레나물", "emoji": "🥬"}, {"text": "감자국감자", "emoji": "🥔"}, {"text": "갓김치갓", "emoji": "🥬"}, {"text": "굴국밥굴", "emoji": "🦪"}, {"text": "낙지짬뽕", "emoji": "🐙"}, {"text": "단짠단짠", "emoji": "🍭"}, {"text": "새콤달콤", "emoji": "🍬"}, {"text": "말랑몰랑", "emoji": "🍡"}, {"text": "통통통닭", "emoji": "🍗"}, {"text": "쫀득쫀득", "emoji": "🍡"}, {"text": "짭짤한땅콩", "emoji": "🥜"}], "trap": [{"text": "공장간장", "base": "간장공장", "emoji": "🏭", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "찰떡딸기", "base": "딸기찰떡", "emoji": "🍓", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "깍지콩깍지", "base": "콩깍지깍지", "emoji": "🫛", "blueDots": [0, 1], "redDots": [2, 3, 4]}, {"text": "달콤새콤", "base": "새콤달콤", "emoji": "🍬", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "탕탕우당", "base": "우당탕탕", "emoji": "💥", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "쌀밥햅쌀", "base": "햅쌀쌀밥", "emoji": "🍚", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "튀김뻥튀기", "base": "뻥튀기튀김", "emoji": "🍘", "blueDots": [0, 1], "redDots": [2, 3, 4]}, {"text": "곰돌이곰곰", "base": "곰곰곰돌이", "emoji": "🧸", "blueDots": [0, 1, 2], "redDots": [3, 4]}, {"text": "참새짹짹", "base": "짹짹참새", "emoji": "🐦", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "찐빵찹쌀", "base": "찹쌀찐빵", "emoji": "🥟", "blueDots": [0, 1], "redDots": [2, 3]}]}, "age15": {"normal": [{"text": "역삼역옆집", "emoji": "🏠"}, {"text": "시내스시식당", "emoji": "🍣"}, {"text": "꽃에꽂힌꽁치", "emoji": "🐟"}, {"text": "경찰청창살", "emoji": "🚔"}, {"text": "촉촉초코칩", "emoji": "🍪"}, {"text": "안촉촉초코칩", "emoji": "🍪"}, {"text": "신선한생선", "emoji": "🐟"}, {"text": "청춘춘천행", "emoji": "🚆"}, {"text": "법학박사", "emoji": "🎓"}, {"text": "샤워실샤워", "emoji": "🚿"}, {"text": "안양양념장", "emoji": "🥫"}, {"text": "양양역양갱", "emoji": "🍮"}, {"text": "척척박사", "emoji": "🧑‍🎓"}, {"text": "칠월칠일밤", "emoji": "🌌"}, {"text": "백합밭백합", "emoji": "🌷"}, {"text": "솔잎숲산삼", "emoji": "🌲"}, {"text": "햅쌀찹쌀떡", "emoji": "🍡"}, {"text": "돌솥비빔밥", "emoji": "🍚"}, {"text": "짧은짚신짝", "emoji": "🥿"}, {"text": "붉은벽돌빛", "emoji": "🧱"}, {"text": "검붉은껌값", "emoji": "🍬"}, {"text": "꼬막깍두기", "emoji": "🥘"}, {"text": "깻잎깻잎국", "emoji": "🥬"}, {"text": "얇은약봉지", "emoji": "💊"}, {"text": "옆문엿보기", "emoji": "👀"}, {"text": "은행원연봉", "emoji": "💰"}, {"text": "팥빙수빙수", "emoji": "🍧"}, {"text": "솥뚜껑뚜껑", "emoji": "🍳"}, {"text": "벚꽃빛봄밤", "emoji": "🌸"}, {"text": "낮달낚시꾼", "emoji": "🎣"}, {"text": "얄팍한약값", "emoji": "💊"}, {"text": "튼튼통나무", "emoji": "🪵"}, {"text": "씀바귀쌈밥", "emoji": "🥗"}, {"text": "참치찹쌀죽", "emoji": "🥣"}, {"text": "멸치말리기", "emoji": "🐟"}, {"text": "놀란노루뿔", "emoji": "🦌"}, {"text": "깐콩깍지", "emoji": "🫛"}, {"text": "단팥빵팥빵", "emoji": "🥐"}, {"text": "통찐빵찐빵", "emoji": "🥟"}, {"text": "새우쌀과자", "emoji": "🍤"}, {"text": "찹쌀누룽지", "emoji": "🍘"}, {"text": "요구르트류", "emoji": "🥛"}, {"text": "유리잔유리", "emoji": "🥃"}, {"text": "의류수거함", "emoji": "👕"}, {"text": "육회비빔밥", "emoji": "🍚"}, {"text": "만두찐만두", "emoji": "🥟"}, {"text": "꼬다리김밥", "emoji": "🍙"}, {"text": "늴리리야", "emoji": "🎶"}, {"text": "청단풍단풍", "emoji": "🍁"}, {"text": "얽힌실타래", "emoji": "🧶"}], "trap": [{"text": "초코촉촉칩", "base": "촉촉초코칩", "emoji": "🍪", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "생선한신선", "base": "신선한생선", "emoji": "🐟", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "창살청경찰", "base": "경찰청창살", "emoji": "🚔", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "박사법학", "base": "법학박사", "emoji": "🎓", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "옆집역역삼", "base": "역삼역옆집", "emoji": "🏠", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "연봉원은행", "base": "은행원연봉", "emoji": "💰", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "벽돌붉은빛", "base": "붉은벽돌빛", "emoji": "🧱", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "비빔솥돌밥", "base": "돌솥비빔밥", "emoji": "🍚", "blueDots": [0, 1], "redDots": [3]}, {"text": "빙수팥빙수", "base": "팥빙수빙수", "emoji": "🍧", "blueDots": [0, 1], "redDots": [2]}, {"text": "수거의류함", "base": "의류수거함", "emoji": "👕", "blueDots": [0, 1], "redDots": [2, 3]}]}, "adult": {"normal": [{"text": "간장공장공장장", "emoji": "🏭"}, {"text": "왕밤빵", "emoji": "🥐"}, {"text": "홍합왕밤빵", "emoji": "🦪"}, {"text": "로얄뉴로얄", "emoji": "🚗"}, {"text": "대우로얄뉴로얄", "emoji": "🚙"}, {"text": "확률분포표", "emoji": "📊"}, {"text": "영동용봉탕", "emoji": "🍲"}, {"text": "척추측만증", "emoji": "🦴"}, {"text": "돌산갓김치", "emoji": "🥬"}, {"text": "남내리미나리", "emoji": "🌿"}, {"text": "꿩잎볶음쌈", "emoji": "🥬"}, {"text": "단팥맛통찐빵", "emoji": "🥟"}, {"text": "표준규격품", "emoji": "📏"}, {"text": "철수책상철책상", "emoji": "🪑"}, {"text": "시골찹쌀햇찹쌀", "emoji": "🌾"}, {"text": "도시찹쌀촌찹쌀", "emoji": "🍚"}, {"text": "신진샹숑가수", "emoji": "🎤"}, {"text": "신춘샹숑쇼우", "emoji": "🎭"}, {"text": "챠프포프킨", "emoji": "🪆"}, {"text": "치스챠코프", "emoji": "🪆"}, {"text": "라흐마니노프", "emoji": "🎹"}, {"text": "스르프스카", "emoji": "🗺️"}, {"text": "크르클랄르", "emoji": "🌀"}, {"text": "특허허가과", "emoji": "📋"}, {"text": "미트소스소세지", "emoji": "🌭"}, {"text": "스위스사는스미스", "emoji": "🏔️"}, {"text": "점진적증폭", "emoji": "📈"}, {"text": "물류유통량", "emoji": "🚚"}, {"text": "육류유통업", "emoji": "🥩"}, {"text": "유류분반환", "emoji": "⚖️"}, {"text": "열역학법칙", "emoji": "🔥"}, {"text": "폭발력측정", "emoji": "💣"}, {"text": "압축팽창압", "emoji": "🎈"}, {"text": "특촬물출연", "emoji": "🦸"}, {"text": "굵직굵직", "emoji": "🪵"}, {"text": "얇디얇은옷", "emoji": "👗"}, {"text": "짧디짧은봄", "emoji": "🌸"}, {"text": "넓둥근돌", "emoji": "🪨"}, {"text": "밝힐밝기", "emoji": "💡"}, {"text": "붉디붉은빛", "emoji": "🔴"}, {"text": "닭볶음탕값", "emoji": "🍗"}, {"text": "꿩샤브샤브", "emoji": "🍲"}, {"text": "쭈꾸미쫄면", "emoji": "🐙"}, {"text": "짬뽕맛땅콩빵", "emoji": "🥜"}, {"text": "콩팥팥콩", "emoji": "🫘"}, {"text": "흙받기받침", "emoji": "🧱"}, {"text": "칡넝쿨칡즙", "emoji": "🌿"}, {"text": "곶감꽃값", "emoji": "🍂"}, {"text": "낚싯줄값", "emoji": "🎣"}, {"text": "폐렴예방약", "emoji": "💊"}], "trap": [{"text": "반팔색검은티", "base": "검은색반팔티", "emoji": "👕", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "분포확률표", "base": "확률분포표", "emoji": "📊", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "용봉영동탕", "base": "영동용봉탕", "emoji": "🍲", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "왕밤홍합빵", "base": "홍합왕밤빵", "emoji": "🦪", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "촌찹쌀도시찹쌀", "base": "도시찹쌀촌찹쌀", "emoji": "🍚", "blueDots": [0], "redDots": [3, 4]}, {"text": "통팥맛단찐빵", "base": "단팥맛통찐빵", "emoji": "🥟", "blueDots": [0], "redDots": [3]}, {"text": "측만척추증", "base": "척추측만증", "emoji": "🦴", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "샹숑신진가수", "base": "신진샹숑가수", "emoji": "🎤", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "뉴로얄로얄", "base": "로얄뉴로얄", "emoji": "🚗", "blueDots": [0], "redDots": [1, 2]}, {"text": "볶음꿩잎쌈", "base": "꿩잎볶음쌈", "emoji": "🥬", "blueDots": [0, 1], "redDots": [2, 3]}]}}};
-const AGES = ["age5","age10","age15","adult"];
-const MODES = [["basic","일반카드만"],["advanced","+ 함정카드"],["expert","+ 특수카드 · 시간 30% 단축"]];
+/* ══════════════════════════════════════════
+   1. 자모 데이터 (확정 프리셋 v5 기반)
+   각 글자: 발음, 모드(solo/duo), 목표 관절각, 시범 캡션
+   판정은 '관절 각도'만 사용 → 몸집 무관
+   ══════════════════════════════════════════ */
 
-let sel = { age:"age10", mode:"advanced", np:2 };
-let deck = [], board = [], players = [], cur = 0, dir = 1, state = "setup";
-let timerId = null, timeLeft = 0, timeMax = 0, encoreMode = false, togetherNext = false;
+// 각도 규약(시범 렌더): 팔다리=아래 0°,오른쪽+90°,위180° / 몸통·머리=위 0°
+const BASE_FIG={rootH:92,torso:0,head:0,headUp:0,aL:[-7,-7],aR:[7,7],lL:[-4,-4],lR:[4,4],rot:0};
 
-function mkOpts(rowId, items, key){
-  const row = document.getElementById(rowId);
-  items.forEach(([val,label,small])=>{
-    const b = document.createElement('button');
-    b.className = 'opt' + (sel[key]===val ? ' sel':'');
-    b.innerHTML = label + (small?`<small>${small}</small>`:'');
-    b.onclick = ()=>{ sel[key]=val; [...row.children].forEach(c=>c.classList.remove('sel')); b.classList.add('sel'); };
-    row.appendChild(b);
+// 판정용 목표각 정의 헬퍼: 어깨-팔 벌림각(몸통 기준), 팔꿈치 굽힘, 다리 벌림 등 핵심만 검사
+// checks: [{joint, target, tol}] — joint 계산은 evaluatePose에서
+const LETTERS={
+ // ─ S1 솔로 단모음 ─
+ "ㅣ":{sound:"이",mode:"solo",fig:{...BASE_FIG},
+   cap:"차렷! 곧게 서요",
+   checks:[{k:"armL",t:0,tol:28},{k:"armR",t:0,tol:28},{k:"legGap",t:12,tol:16}]},
+ "ㅏ":{sound:"아",mode:"solo",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},
+   cap:"오른팔을 옆으로!",
+   checks:[{k:"armR",t:90,tol:32},{k:"armL",t:0,tol:32}]},
+ "ㅓ":{sound:"어",mode:"solo",fig:{rootH:92,torso:0,head:0,aL:[-90,-90],aR:[7,7],lL:[-4,-4],lR:[4,4]},
+   cap:"왼팔을 옆으로!",
+   checks:[{k:"armL",t:90,tol:32},{k:"armR",t:0,tol:32}]},
+ "ㅡ":{sound:"으",mode:"solo",fig:{...BASE_FIG,rot:-88},
+   cap:"바닥에 누워요",
+   checks:[{k:"lie",t:1,tol:0}]},
+ // ─ S2 솔로 자음 ─
+ "ㅅ":{sound:"스",mode:"solo",fig:{rootH:88,torso:0,head:0,aL:[-12,-12],aR:[12,12],lL:[-25,-25],lR:[25,25]},
+   cap:"다리를 쫙 벌려요",
+   checks:[{k:"legGap",t:52,tol:22},{k:"armL",t:12,tol:30},{k:"armR",t:12,tol:30}]},
+ "ㄱ":{sound:"그",mode:"solo",fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},
+   cap:"허리를 앞으로 숙여요",
+   checks:[{k:"bend",t:1,tol:0}]},
+ "ㄴ":{sound:"느",mode:"solo",fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[82,82],lR:[86,86]},
+   cap:"앉아서 다리를 앞으로",
+   checks:[{k:"sit",t:1,tol:0}]},
+ "ㅇ":{sound:"으",mode:"solo",fig:{rootH:78,torso:0,head:0,aL:[-24,-6],aR:[24,6],lL:[-24,16],lR:[24,-16]},
+   cap:"팔로 동그라미!",
+   checks:[{k:"armRound",t:1,tol:0}]},
+ // ─ S3 듀오 글자 (아빠+아이) ─
+ "가":{sound:"가",mode:"duo",
+   figs:[{who:"아빠",fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},x:-80,c:"coral"},
+         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
+   cap:"아빠는 ㄱ, 아이는 ㅏ!",
+   duoChecks:{p0:[{k:"bend",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
+ "나":{sound:"나",mode:"duo",
+   figs:[{who:"아빠",fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[82,82],lR:[86,86]},x:-80,c:"coral"},
+         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
+   cap:"아빠는 ㄴ, 아이는 ㅏ!",
+   duoChecks:{p0:[{k:"sit",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
+ "사":{sound:"사",mode:"duo",
+   figs:[{who:"아빠",fig:{rootH:88,torso:0,head:0,aL:[-12,-12],aR:[12,12],lL:[-25,-25],lR:[25,25]},x:-80,c:"coral"},
+         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
+   cap:"아빠는 ㅅ, 아이는 ㅏ!",
+   duoChecks:{p0:[{k:"legGap",t:52,tol:24}],p1:[{k:"armR",t:90,tol:36}]}},
+ "아":{sound:"아",mode:"duo",
+   figs:[{who:"아빠",fig:{rootH:78,torso:0,head:0,aL:[-24,-6],aR:[24,6],lL:[-24,16],lR:[24,-16]},x:-80,c:"coral"},
+         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
+   cap:"아빠는 ㅇ, 아이는 ㅏ!",
+   duoChecks:{p0:[{k:"armRound",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
+};
+
+const STAGES=[
+ {id:"S1",label:"혼자 단모음",badge:"1단계",mode:"solo",list:["ㅣ","ㅏ","ㅓ","ㅡ"]},
+ {id:"S2",label:"혼자 자음",badge:"2단계",mode:"solo",list:["ㅅ","ㄱ","ㄴ","ㅇ"]},
+ {id:"S3",label:"아빠랑 글자",badge:"3단계",mode:"duo",list:["가","나","사","아"]},
+];
+
+/* ══════════════════════════════════════════
+   2. 저장 (별/기록) — localStorage 불가 환경 대비 메모리 폴백
+   ══════════════════════════════════════════ */
+const store={
+  data:{stars:{},best:{combo:0}},
+  load(){ try{const r=localStorage.getItem("hangul_body");if(r)this.data=JSON.parse(r);}catch(e){} },
+  save(){ try{localStorage.setItem("hangul_body",JSON.stringify(this.data));}catch(e){} },
+  starOf(g){return this.data.stars[g]||0;},
+  setStar(g,n){if(n>(this.data.stars[g]||0)){this.data.stars[g]=n;this.save();}},
+  total(){return Object.values(this.data.stars).reduce((s,v)=>s+v,0);},
+};
+store.load();
+
+/* ══════════════════════════════════════════
+   3. 음성
+   ══════════════════════════════════════════ */
+function speak(text,rate=1){
+  try{ speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=rate;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ══════════════════════════════════════════
+   4. 시범 스틱피겨 렌더 (뷰어 로직 이식)
+   ══════════════════════════════════════════ */
+const DIM={torso:70,neck:9,headR:15,uarm:36,farm:33,thigh:44,shin:40};
+const rad=d=>d*Math.PI/180;
+function figColor(c){return c==="coral"?"#FF7A59":c==="mint"?"#37C9A8":"#FF7A59";}
+
+function drawFig(ctx,pose,rootX,ground,color){
+  ctx.save();
+  const rot=pose.rot||0;
+  if(rot){ctx.translate(rootX,ground);ctx.rotate(rad(rot));ctx.translate(-rootX,-ground);}
+  const rx=rootX,ry=ground-pose.rootH;
+  const P=(x,y,a,l)=>[x+Math.sin(rad(a))*l,y+Math.cos(rad(a))*l];
+  const tx=rx+Math.sin(rad(pose.torso))*DIM.torso, ty=ry-Math.cos(rad(pose.torso))*DIM.torso;
+  const hd=DIM.neck+DIM.headR+(pose.headUp||0);
+  const hx=tx+Math.sin(rad(pose.torso+pose.head))*hd, hy=ty-Math.cos(rad(pose.torso+pose.head))*hd;
+  ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=9;ctx.lineCap="round";ctx.lineJoin="round";
+  [pose.lL,pose.lR].forEach(leg=>{const[k1,k2]=leg;const kn=P(rx,ry,k1,DIM.thigh),an=P(kn[0],kn[1],k2,DIM.shin);
+    ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(kn[0],kn[1]);ctx.lineTo(an[0],an[1]);ctx.stroke();});
+  ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(tx,ty);ctx.stroke();
+  [pose.aL,pose.aR].forEach(arm=>{const[a1,a2]=arm;const el=P(tx,ty,a1,DIM.uarm),wr=P(el[0],el[1],a2,DIM.farm);
+    ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(el[0],el[1]);ctx.lineTo(wr[0],wr[1]);ctx.stroke();});
+  ctx.beginPath();ctx.arc(hx,hy,DIM.headR,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+function lerp(a,b,t){return a+(b-a)*t;}
+function lerpPose(a,b,t){const o={};["rootH","torso","head","headUp","rot"].forEach(k=>o[k]=lerp(a[k]||0,b[k]||0,t));
+  ["aL","aR","lL","lR"].forEach(k=>o[k]=[lerp(a[k][0],b[k][0],t),lerp(a[k][1],b[k][1],t)]);return o;}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+let demoAnim=null;
+function playDemo(letter){
+  const dctx=demoCanvas.getContext("2d");
+  const W=demoCanvas.width,H=demoCanvas.height,ground=H-30;
+  const def=LETTERS[letter];
+  if(demoAnim)cancelAnimationFrame(demoAnim);
+  const t0=performance.now(),DUR=1500;
+  function frame(now){
+    let t=(now-t0)/DUR;if(t>1)t=1;const e=ease(t);
+    dctx.clearRect(0,0,W,H);
+    if(def.mode==="duo"){
+      def.figs.forEach(f=>drawFig(dctx,lerpPose(BASE_FIG,{...BASE_FIG,...f.fig},e),W/2+f.x*0.9,ground,figColor(f.c)));
+    }else{
+      drawFig(dctx,lerpPose(BASE_FIG,{...BASE_FIG,...def.fig},e),W/2,ground,"#FFC93C");
+    }
+    if(t<1)demoAnim=requestAnimationFrame(frame);
+    else{ demoAnim=requestAnimationFrame(()=>{setTimeout(()=>playDemo(letter),700);}); }
+  }
+  demoAnim=requestAnimationFrame(frame);
+}
+
+/* ══════════════════════════════════════════
+   5. 포즈 판정 (실제 카메라)
+   관절 각도만 사용 → 몸집 무관. 각 check의 k별 계산.
+   ══════════════════════════════════════════ */
+function ang(ax,ay,bx,by){ // 벡터 b-a 가 수직(위)기준 시계각? 여기선 팔 벌림용: 몸통 대비
+  return Math.atan2(bx-ax,-(by-ay))*180/Math.PI; // 위=0, 오른쪽+90
+}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+
+// 한 사람(landmarks 33)에 대해 각 check 통과율(0~1) 평균 반환
+function scorePerson(lm,checks){
+  if(!lm)return 0;
+  let sum=0,cnt=0;
+  const torsoLen=(dist(lm[11],lm[23])+dist(lm[12],lm[24]))/2 || 0.1;
+  for(const c of checks){
+    let pass=0;
+    if(c.k==="armR"){ // 오른팔(인물기준 오른쪽=lm 12,14,16) 벌림각(몸통 대비)
+      const a=ang(lm[12].x,lm[12].y,lm[16].x,lm[16].y); // 어깨→손목
+      pass=within(Math.abs(a),c.t,c.tol);
+    }else if(c.k==="armL"){
+      const a=ang(lm[11].x,lm[11].y,lm[15].x,lm[15].y);
+      pass=within(Math.abs(a),c.t,c.tol);
+    }else if(c.k==="legGap"){
+      const gap=dist(lm[27],lm[28])/torsoLen*30; // 발목 간격 정규화
+      pass=within(gap,c.t,c.tol);
+    }else if(c.k==="bend"){ // 상체 숙임: 어깨가 골반보다 앞/아래로
+      const sh=(lm[11].y+lm[12].y)/2, hip=(lm[23].y+lm[24].y)/2;
+      const horiz=Math.abs((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2)/torsoLen;
+      pass=(sh>hip-0.05 && horiz>0.25)?1:0; // 어깨 내려오고 몸통 기울어짐
+    }else if(c.k==="sit"){ // 앉기: 골반이 무릎높이 근처, 무릎 앞으로
+      const hip=(lm[23].y+lm[24].y)/2, kn=(lm[25].y+lm[26].y)/2, an=(lm[27].y+lm[28].y)/2;
+      pass=(Math.abs(hip-kn)<0.18 && kn<an+0.05)?1:0;
+    }else if(c.k==="lie"){ // 눕기: 어깨-골반이 수평
+      const dx=Math.abs((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2);
+      const dy=Math.abs((lm[11].y+lm[12].y)/2-(lm[23].y+lm[24].y)/2);
+      pass=(dx>dy*1.3)?1:0;
+    }else if(c.k==="armRound"){ // 팔로 원: 양 손목이 머리 위 근처에서 가까움
+      const wristClose=dist(lm[15],lm[16])<torsoLen*0.9;
+      const up=(lm[15].y<lm[11].y && lm[16].y<lm[12].y);
+      pass=(wristClose&&up)?1:0;
+    }
+    sum+=pass;cnt++;
+  }
+  return cnt?sum/cnt:0;
+}
+function within(v,t,tol){ const d=Math.abs(v-t); return d<=tol?1:Math.max(0,1-(d-tol)/(tol*1.5)); }
+
+/* ══════════════════════════════════════════
+   6. 게임 상태 & 루프
+   ══════════════════════════════════════════ */
+const video=document.getElementById("video");
+const poseCanvas=document.getElementById("poseCanvas");
+const pctx=poseCanvas.getContext("2d");
+const demoCanvas=document.getElementById("demoCanvas");
+
+let landmarker=null, camStream=null, rafId=null, lastVideoTime=-1;
+let mode="solo", queue=[], qIndex=0, currentLetter=null;
+let holdStart=0, combo=0, poseReady=false, roundStartTime=0, waiting=false;
+
+const CONN=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],
+  [23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[28,30],[30,32],[0,11],[0,12]];
+
+async function ensureCameraAndModel(){
+  if(landmarker&&camStream)return true;
+  loading.style.display="flex";errText.style.display="none";
+  try{
+    if(!camStream){
+      loadingText.textContent="카메라 준비 중…";
+      camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:false});
+      video.srcObject=camStream;
+      await new Promise(r=>{video.onloadedmetadata=()=>{video.play();r();};});
+    }
+    if(!landmarker){
+      loadingText.textContent="준비하고 있어요…";
+      const vision=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+      landmarker=await PoseLandmarker.createFromOptions(vision,{
+        baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
+        runningMode:"VIDEO",numPoses:2,
+        minPoseDetectionConfidence:0.4,minPosePresenceConfidence:0.4,minTrackingConfidence:0.4});
+    }
+    speak(""); // 음성 워밍업
+    loading.style.display="none";
+    return true;
+  }catch(e){
+    loadingText.textContent="문제가 생겼어요";
+    errText.style.display="block";
+    errText.innerHTML="카메라를 켤 수 없어요.<br>· 인터넷 주소(https)로 열었는지 확인해주세요<br>· 브라우저에서 카메라를 허용해주세요<br><br>"+e.message;
+    return false;
+  }
+}
+
+function resizeCanvas(){poseCanvas.width=video.videoWidth;poseCanvas.height=video.videoHeight;}
+
+function loop(){
+  rafId=requestAnimationFrame(loop);
+  if(!landmarker||waiting)return;
+  if(video.videoWidth&&poseCanvas.width!==video.videoWidth)resizeCanvas();
+  const now=performance.now();
+  if(video.currentTime===lastVideoTime)return;
+  lastVideoTime=video.currentTime;
+  const res=landmarker.detectForVideo(video,now);
+  const people=res.landmarks||[];
+  drawSkeleton(people);
+  judge(people);
+}
+
+function drawSkeleton(people){
+  pctx.clearRect(0,0,poseCanvas.width,poseCanvas.height);
+  const W=poseCanvas.width,H=poseCanvas.height;
+  people.forEach((lm,idx)=>{
+    const color=idx===0?"#FF7A59":"#37C9A8";
+    pctx.strokeStyle=color;pctx.lineWidth=6;pctx.lineCap="round";
+    CONN.forEach(([a,b])=>{if(lm[a]&&lm[b]){pctx.beginPath();
+      pctx.moveTo(lm[a].x*W,lm[a].y*H);pctx.lineTo(lm[b].x*W,lm[b].y*H);pctx.stroke();}});
+    pctx.fillStyle=color;
+    lm.forEach(p=>{pctx.beginPath();pctx.arc(p.x*W,p.y*H,5,0,Math.PI*2);pctx.fill();});
   });
 }
-mkOpts('ageRow', AGES.map(a=>{
-  const s = DATA.ageSettings[a];
-  const info = s.perCardSec ? `장당 ${s.perCardSec}초 · 판 ${s.boardCap}장` : `읽어주기 · 판 ${s.boardCap}장`;
-  return [a, s.label, info];
-}), 'age');
-mkOpts('modeRow', MODES.map(([id,d])=>[id, DATA.modes[id].label, d]), 'mode');
-mkOpts('plRow', [2,3,4,5,6].map(n=>[n, n+'명']), 'np');
 
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-
-function startGame(){
-  const ad = DATA.ages[sel.age];
-  deck = ad.normal.map(c=>({...c, type:'normal'}));
-  if(sel.mode!=='basic') deck = deck.concat(ad.trap.map(c=>({...c, type:'trap'})));
-  if(sel.mode==='expert') DATA.specialCards.forEach(s=>{ for(let i=0;i<s.count;i++) deck.push({...s, type:'special'}); });
-  shuffle(deck);
-  players = Array.from({length:sel.np},(_,i)=>({name:'플레이어'+(i+1), pen:0}));
-  cur = 0; dir = 1; board = []; state = 'idle'; encoreMode = false; togetherNext = false;
-  document.getElementById('setup').style.display='none';
-  document.getElementById('game').style.display='block';
-  document.getElementById('modeinfo').textContent =
-    `${DATA.ageSettings[sel.age].label} · ${DATA.modes[sel.mode].label} 모드`;
-  setMsg(`${players[cur].name} 차례! 카드 더미를 뒤집으세요`);
-  renderAll();
-}
-
-function setMsg(t){ document.getElementById('msg').textContent = t; }
-function setCtrl(h){ document.getElementById('ctrl').innerHTML = h; }
-
-function wordHTML(c){
-  if(c.type==='trap'){
-    return [...c.text].map((ch,i)=>{
-      const cls = c.blueDots.includes(i) ? ' b' : c.redDots.includes(i) ? ' r' : '';
-      return `<span class="syl${cls}">${ch}</span>`;
-    }).join('');
+function judge(people){
+  const def=LETTERS[currentLetter];
+  let score=0, need=2;
+  if(def.mode==="solo"){
+    need=1;
+    if(people.length<1){ setStatus("온몸이 보이게 서주세요 🧍"); resetHold(); return; }
+    score=scorePerson(people[0],def.checks);
+  }else{
+    if(people.length<2){ setStatus("두 사람이 나란히 서주세요 👨‍👧"); resetHold(); return; }
+    hideStatus();
+    // 좌우 위치로 아빠(왼)/아이(오른) 구분: 화면상 x가 작은 쪽이 왼쪽
+    let a=people[0],b=people[1];
+    const ax=(a[23].x+a[24].x)/2, bx=(b[23].x+b[24].x)/2;
+    // 거울 화면이므로 실제 왼쪽=x큰 쪽. duoChecks p0=아빠(왼). 간단히 두 배정 모두 시도해 높은 쪽 채택.
+    const s1=(scorePerson(a,def.duoChecks.p0)+scorePerson(b,def.duoChecks.p1))/2;
+    const s2=(scorePerson(b,def.duoChecks.p0)+scorePerson(a,def.duoChecks.p1))/2;
+    score=Math.max(s1,s2);
   }
-  return c.text;
-}
-
-function boardSizeClass(){
-  if(sel.age==='age5') return 'lg age5';
-  const n = board.length;
-  return n<=6 ? 'lg' : n<=12 ? 'md' : 'sm';
-}
-
-function renderAll(){
-  document.getElementById('dirinfo').textContent = `진행 방향 ${dir===1?'→':'←'}`;
-  document.getElementById('deckcnt').textContent = deck.length + '장 남음';
-  document.getElementById('deck').classList.toggle('done', deck.length===0);
-  document.getElementById('players').innerHTML = players.map((p,i)=>
-    `<div class="pl${i===cur?' active':''}"><div class="nm">${p.name}</div><div class="sc">${p.pen}<small> 벌점</small></div></div>`).join('');
-  const cap = DATA.ageSettings[sel.age].boardCap;
-  document.getElementById('boardcount').textContent = `판 위 카드 ${board.length}장 — 전부 읽어야 해요!`;
-  document.getElementById('boardcap').textContent = `${cap}장 채우고 성공하면 라운드 클리어`;
-  const bd = document.getElementById('board');
-  bd.className = 'board ' + boardSizeClass();
-  if(board.length===0){
-    bd.innerHTML = `<div class="empty">아직 판이 비어 있어요 — 카드 더미를 뒤집으세요</div>`;
-  } else {
-    bd.innerHTML = board.map((c,i)=>{
-      const isNew = (state==='judging'||state==='together') && !encoreMode && i===board.length-1;
-      return `<div class="bcard ${c.type==='trap'?'trap':''} ${isNew?'new':''}" id="bc${i}">
-        <span class="no">${i+1}</span>${isNew?'<span class="newtag">NEW</span>':''}
-        <div class="emo">${c.emoji}</div><div class="w">${wordHTML(c)}</div></div>`;
-    }).join('');
+  updateGauge(score);
+  const THRESH=0.75;
+  if(score>=THRESH){
+    if(!holdStart)holdStart=performance.now();
+    const held=(performance.now()-holdStart)/1000;
+    gaugeLabel.textContent=`좋아요! ${Math.max(0,(1.5-held)).toFixed(1)}초…`;
+    if(held>=1.5){ success(); }
+  }else{
+    resetHold();
   }
 }
+function resetHold(){holdStart=0;}
+function updateGauge(score){
+  gaugeFill.style.width=Math.min(100,score*100)+"%";
+  if(score<0.4)gaugeLabel.textContent="몸을 움직여봐요";
+  else if(score<0.75)gaugeLabel.textContent="비슷해지고 있어요…";
+}
+let statusTimer=null;
+function setStatus(t){statusChip.textContent=t;statusChip.style.display="block";}
+function hideStatus(){statusChip.style.display="none";}
 
-/* ----- 진행 ----- */
-function onDeck(){ if(state==='idle') flipNext(); }
+/* 성공 처리 */
+function success(){
+  waiting=true; resetHold();
+  const def=LETTERS[currentLetter];
+  const elapsed=(performance.now()-roundStartTime)/1000;
+  combo++;
+  // 별: 포즈 성공 기본 2 + 빠르면 3
+  let stars=elapsed<8?3:2;
+  store.setStar(currentLetter,stars);
+  // 발음 유도 (보너스 별, 관대)
+  showWin(currentLetter,def,stars,elapsed);
+}
 
-function flipNext(){
-  if(deck.length===0){ endGame(); return; }
-  const card = deck.shift();
-  if(card.type==='special'){
-    state='special';
-    showSpecial(card);
+/* ══════════════════════════════════════════
+   7. 화면 전환 & UI
+   ══════════════════════════════════════════ */
+const screens={title:titleScreen,map:mapScreen,play:playScreen};
+function show(name){Object.values(screens).forEach(s=>s.classList.remove("active"));screens[name].classList.add("active");}
+
+// 타이틀 → 지도
+document.querySelectorAll(".big-start").forEach(b=>{
+  b.addEventListener("click",()=>{ mode=b.dataset.mode; buildMap(); show("map"); });
+});
+mapBack.addEventListener("click",()=>show("title"));
+
+function buildMap(){
+  totalStars.textContent=store.total();
+  mapScroll.innerHTML="";
+  const stages = mode==="solo" ? STAGES.filter(s=>s.mode==="solo") : STAGES;
+  stages.forEach((st,si)=>{
+    const g=document.createElement("div");g.className="stage-group";
+    g.innerHTML=`<div class="stage-label"><span class="badge">${st.badge}</span>${st.label}</div>`;
+    const tiles=document.createElement("div");tiles.className="tiles";
+    // 잠금: 이전 스테이지 별 절반 이상이면 해제(간단 규칙). 첫 스테이지는 항상 열림.
+    let prevCleared = si===0 ? true : stages[si-1].list.some(g=>store.starOf(g)>0);
+    st.list.forEach(letter=>{
+      const t=document.createElement("button");
+      const stars=store.starOf(letter);
+      t.className="tile"+(st.mode==="duo"?" duo":"")+(stars>0?" cleared":"")+(prevCleared?"":" locked");
+      t.innerHTML=`<span>${letter}</span>`+(stars>0?`<span class="ministar">${"★".repeat(stars)}</span>`:"");
+      if(prevCleared) t.addEventListener("click",()=>startStage(st,letter));
+      tiles.appendChild(t);
+    });
+    g.appendChild(tiles);mapScroll.appendChild(g);
+  });
+}
+
+async function startStage(stage,startLetter){
+  queue=stage.list.slice();
+  qIndex=Math.max(0,queue.indexOf(startLetter));
+  combo=0;
+  show("play");
+  const ok=await ensureCameraAndModel();
+  if(!ok)return;
+  cancelAnimationFrame(rafId);loop();
+  loadLetter();
+}
+
+function loadLetter(){
+  currentLetter=queue[qIndex];
+  const def=LETTERS[currentLetter];
+  targetGlyph.textContent=currentLetter;
+  playHint.textContent=def.cap;
+  comboBox.style.display=combo>0?"block":"none";comboNum.textContent=combo;
+  gaugeWrap.style.display="none";
+  winOverlay.style.display="none";
+  waiting=true; // 시범 보는 동안 판정 정지
+  // 시범
+  demoSpeak.textContent=def.sound;
+  demoText.textContent=def.cap;
+  demoOverlay.style.display="flex";
+  playDemo(currentLetter);
+  speak(currentLetter+". "+def.sound,0.9);
+}
+
+demoBtn.addEventListener("click",()=>{
+  demoOverlay.style.display="none";
+  if(demoAnim)cancelAnimationFrame(demoAnim);
+  gaugeWrap.style.display="block";
+  roundStartTime=performance.now();
+  waiting=false;
+});
+demoAgainBtn.addEventListener("click",()=>{ waiting=true;demoOverlay.style.display="flex";playDemo(currentLetter);speak(LETTERS[currentLetter].sound); });
+skipBtn.addEventListener("click",nextLetter);
+playBack.addEventListener("click",()=>{ waiting=true;cancelAnimationFrame(rafId);show("map");buildMap(); });
+
+function showWin(letter,def,stars,elapsed){
+  winGlyph.textContent=letter;
+  winSpeak.textContent=def.sound;
+  winStars.innerHTML="";
+  for(let i=0;i<stars;i++){const s=document.createElement("span");s.textContent="⭐";s.style.animationDelay=(i*0.15)+"s";winStars.appendChild(s);}
+  // 자기경쟁 기록
+  if(combo>store.data.best.combo){ store.data.best.combo=combo;store.save();
+    winRecord.textContent=`🔥 신기록! ${combo}연속 성공!`; winRecord.style.display="block";
+  }else winRecord.style.display="none";
+  winOverlay.style.display="flex";
+  spawnConfetti();
+  // 성공 소리 → 발음 유도
+  speak("잘했어요! "+letter,1);
+  setTimeout(()=>speak("같이 말해볼까요? "+def.sound,0.9),1200);
+}
+winNext.addEventListener("click",nextLetter);
+
+function nextLetter(){
+  winOverlay.style.display="none";
+  qIndex++;
+  if(qIndex>=queue.length){
+    // 스테이지 끝
+    waiting=true;cancelAnimationFrame(rafId);
+    speak("모두 완성했어요! 대단해요!",1);
+    show("map");buildMap();
     return;
   }
-  board.push(card);
-  beginReading(false);
+  waiting=false;
+  loadLetter();
 }
 
-function beginReading(isEncore){
-  encoreMode = isEncore;
-  state = togetherNext ? 'together' : 'judging';
-  renderAll();
-  const s = DATA.ageSettings[sel.age];
-  if(s.tts) speakBoard();
-  if(s.perCardSec){
-    timeMax = s.perCardSec * board.length * (sel.mode==='expert' ? DATA.modes.expert.timeMultiplier : 1);
-    startTimer();
-  }
-  if(state==='together'){
-    togetherNext = false;
-    setMsg('📣 모두 동시에 판 전체를 읽으세요! 가장 늦거나 틀린 사람은?');
-    setCtrl(players.map((p,i)=>`<button class="btn pk" onclick="togetherLose(${i})">${p.name}</button>`).join('')
-            + `<button class="btn nx" onclick="togetherLose(-1)">무승부</button>`);
-  } else {
-    setMsg(`${players[cur].name}: 1번부터 ${board.length}번까지 전부 읽기!` + (isEncore?' (한번더!)':''));
-    let extra = s.tts ? `<button class="btn tts" onclick="speakBoard()">🔊 다시 듣기</button>` : '';
-    setCtrl(`<button class="btn ok" onclick="judge(true)">성공 (O)</button><button class="btn no" onclick="judge(false)">실패 (X)</button>${extra}`);
+function spawnConfetti(){
+  const emojis=["⭐","🎉","✨","🌟","💫"];
+  for(let i=0;i<24;i++){
+    const c=document.createElement("div");c.className="confetti";
+    c.textContent=emojis[i%emojis.length];
+    c.style.left=Math.random()*100+"%";
+    c.style.animationDuration=(1.5+Math.random()*1.5)+"s";
+    c.style.animationDelay=(Math.random()*0.4)+"s";
+    winOverlay.appendChild(c);
+    setTimeout(()=>c.remove(),3200);
   }
 }
 
-function judge(ok){
-  if(state!=='judging') return;
-  stopTimer(); stopSpeak();
-  const cap = DATA.ageSettings[sel.age].boardCap;
-  if(ok){
-    if(board.length >= cap){
-      setMsg(`🎉 ${cap}장 완주! 라운드 클리어 — 판을 정리합니다`);
-      board = [];
-    } else {
-      setMsg('⭕ 성공! 판에 카드가 쌓입니다');
-    }
-  } else {
-    players[cur].pen += board.length;
-    setMsg(`❌ 실패! ${players[cur].name} 벌점 +${board.length} — 새 라운드 시작`);
-    board = [];
-  }
-  nextTurn();
-}
-
-function togetherLose(idx){
-  if(state!=='together') return;
-  stopTimer(); stopSpeak();
-  if(idx>=0){ players[idx].pen += 1; setMsg(`${players[idx].name} 벌점 +1!`); }
-  else setMsg('무승부!');
-  nextTurn();
-}
-
-function showSpecial(card){
-  stopTimer();
-  const sp = document.getElementById('specialshow');
-  sp.style.display='flex';
-  sp.innerHTML = `<div class="emo">${card.emoji}</div><div class="nm">${card.name}</div>`;
-  let m='';
-  if(card.id==='reverse') m='진행 방향이 반대로!';
-  if(card.id==='encore') m = board.length ? '지금 판 전체를 다음 사람이 한 번 더!' : '판이 비어 있어 그냥 넘어갑니다';
-  if(card.id==='pass') m='차례를 넘깁니다!';
-  if(card.id==='together') m='다음 카드부터 모두 함께 읽습니다!';
-  setMsg(`✨ 특수카드 — ${m}`);
-  setCtrl(`<button class="btn nx" onclick="confirmSpecial('${card.id}')">확인 (Enter)</button>`);
-  renderAll();
-}
-
-function confirmSpecial(id){
-  if(state!=='special') return;
-  document.getElementById('specialshow').style.display='none';
-  if(id==='reverse'){ dir *= -1; nextTurn(); }
-  else if(id==='pass'){ nextTurn(); }
-  else if(id==='together'){ togetherNext = true; nextTurn(); }
-  else if(id==='encore'){
-    if(board.length){ advance(); beginReading(true); }
-    else nextTurn();
-  }
-}
-
-function advance(){ cur = (cur + dir + players.length) % players.length; }
-
-function nextTurn(){
-  advance();
-  state='idle';
-  setCtrl('');
-  renderAll();
-  if(deck.length===0){ endGame(); return; }
-  setTimeout(()=>{
-    setMsg(document.getElementById('msg').textContent + `  ·  ${players[cur].name} 차례!`);
-  }, 60);
-}
-
-/* ----- 타이머 (전체 시간 하나만 표시) ----- */
-function startTimer(){
-  document.getElementById('timerwrap').style.visibility='visible';
-  document.getElementById('timerlabel').textContent =
-    `전체 ${Math.round(timeMax*10)/10}초 (장당 ${DATA.ageSettings[sel.age].perCardSec}초 × ${board.length}장${sel.mode==='expert'?' × 0.7':''})`;
-  timeLeft = timeMax;
-  timerId = setInterval(()=>{
-    timeLeft -= 0.05;
-    document.getElementById('timerbar').style.width = Math.max(0, timeLeft/timeMax*100) + '%';
-    if(timeLeft<=0){
-      stopTimer();
-      if(state==='judging') judge(false);
-      else if(state==='together') togetherLose(cur);
-    }
-  }, 50);
-}
-function stopTimer(){
-  if(timerId){ clearInterval(timerId); timerId=null; }
-  document.getElementById('timerwrap').style.visibility='hidden';
-  document.getElementById('timerlabel').textContent='';
-  document.getElementById('timerbar').style.width='100%';
-}
-
-/* ----- 5세: 판 전체 TTS + 순차 하이라이트 ----- */
-let speakToken = 0;
-function speakBoard(){
-  if(!window.speechSynthesis || !board.length) return;
-  stopSpeak();
-  const token = ++speakToken;
-  let i = 0;
-  function next(){
-    if(token!==speakToken || i>=board.length){ clearHl(); return; }
-    clearHl();
-    const el = document.getElementById('bc'+i);
-    if(el) el.classList.add('speaking');
-    const u = new SpeechSynthesisUtterance(board[i].text);
-    u.lang='ko-KR'; u.rate=0.75;
-    u.onend = ()=>{ i++; setTimeout(next, 250); };
-    speechSynthesis.speak(u);
-  }
-  next();
-}
-function stopSpeak(){ speakToken++; if(window.speechSynthesis) speechSynthesis.cancel(); clearHl(); }
-function clearHl(){ document.querySelectorAll('.bcard.speaking').forEach(e=>e.classList.remove('speaking')); }
-
-/* ----- 종료 ----- */
-function endGame(){
-  stopTimer(); stopSpeak();
-  state='end';
-  const mn = Math.min(...players.map(p=>p.pen));
-  const winners = players.filter(p=>p.pen===mn).map(p=>p.name).join(', ');
-  document.getElementById('game').style.display='none';
-  document.getElementById('over').style.display='block';
-  document.getElementById('winner').textContent = `🏆 ${winners}`;
-  document.getElementById('finalScores').innerHTML =
-    [...players].sort((a,b)=>a.pen-b.pen).map(p=>`<tr><td>${p.name}</td><td><b>벌점 ${p.pen}</b></td></tr>`).join('');
-}
-
-/* ----- 키보드 ----- */
-document.addEventListener('keydown', e=>{
-  if(e.code==='Space') e.preventDefault();
-  if(e.key==='Enter' || e.code==='Space'){
-    if(state==='setup'){ startGame(); return; }
-    if(state==='idle') flipNext();
-    else if(state==='special'){ const b=document.querySelector('.ctrl .btn.nx'); if(b) b.click(); }
-    else if(state==='judging') judge(true);
-  }
-  if(state==='judging'){
-    if(e.key==='o'||e.key==='O'||e.key==='ㅐ') judge(true);
-    if(e.key==='x'||e.key==='X'||e.key==='ㅌ') judge(false);
-  }
-});
+// 정리
+window.addEventListener("pagehide",()=>{ if(camStream)camStream.getTracks().forEach(t=>t.stop()); });
 </script>
 </body>
 </html>
