@@ -2,335 +2,399 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>2인 포즈 추적 검증 v0.2 — 몸으로 한글</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>간장공장공장장</title>
 <style>
-  :root{
-    --bg:#0E1420;
-    --panel:#18202E;
-    --line:#2A3547;
-    --ink:#E8EDF4;
-    --ink-soft:#8A98AC;
-    --p1:#FF6B4A;   /* 아빠 = 주황 */
-    --p2:#3DD6C4;   /* 아이 = 청록 */
-    --good:#4ADE80;
-    --warn:#FBBF24;
-    --bad:#F87171;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
-    background:var(--bg);color:var(--ink);
-    display:flex;flex-direction:column;
-    overflow:hidden;
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; background:#2c2418; min-height:100vh;
+       display:flex; align-items:flex-start; justify-content:center; padding:16px 0; color:#333; }
+.screen { width:min(860px, 96vw); }
 
-  header{
-    padding:8px 14px;border-bottom:1px solid var(--line);
-    display:flex;align-items:center;gap:10px;
-    background:var(--panel);flex-wrap:wrap;
-  }
-  header h1{font-size:.9rem;font-weight:700}
-  header .ver{font-family:var(--mono);font-size:.66rem;color:var(--ink-soft)}
-  .spacer{flex:1}
-  .ctrl-btn{
-    font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;
-    background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:7px;
-    padding:7px 13px;
-  }
-  .ctrl-btn:active{background:var(--line)}
-  .toggle-on{background:var(--p2)!important;color:#0E1420!important;border-color:var(--p2)!important}
+/* ---------- 설정 ---------- */
+.setup { background:#f5f1e8; border-radius:20px; padding:36px 32px; text-align:center; }
+.setup h1 { font-size:30px; color:#5a4a1e; margin-bottom:6px; }
+.setup .tag { color:#998a60; font-size:14px; margin-bottom:24px; }
+.setup h3 { font-size:15px; color:#6b5b2e; margin:18px 0 8px; text-align:left; }
+.optrow { display:flex; gap:8px; flex-wrap:wrap; }
+.opt { flex:1; min-width:90px; padding:12px 6px; border-radius:12px; border:2px solid #d8c9a0; background:#fff;
+       cursor:pointer; font-size:15px; font-weight:bold; color:#6b5b2e; }
+.opt small { display:block; font-weight:normal; font-size:11px; color:#a99; margin-top:3px; }
+.opt.sel { background:#6b5b2e; color:#fff; border-color:#6b5b2e; }
+.opt.sel small { color:#e8dcc0; }
+.startbtn { margin-top:26px; width:100%; padding:16px; font-size:19px; font-weight:bold; color:#fff;
+            background:#c0392b; border:none; border-radius:14px; cursor:pointer; }
+.rulebox { margin-top:18px; text-align:left; font-size:12px; color:#8a7b50; line-height:1.7; background:#efe8d8; border-radius:10px; padding:12px 16px; }
 
-  #stage{flex:1;position:relative;background:#000;overflow:hidden}
-  video{position:absolute;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-  canvas{position:absolute;width:100%;height:100%;transform:scaleX(-1)}
+/* ---------- 게임 ---------- */
+.game { display:none; background:#f5f1e8; border-radius:20px; padding:18px 22px 24px; }
+.topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; color:#8a7b50; font-weight:bold; }
+.players { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.pl { flex:1; min-width:80px; background:#fff; border:2px solid #ddd; border-radius:12px; padding:7px 4px; text-align:center; }
+.pl.active { border-color:#c0392b; background:#fdf0ee; }
+.pl .nm { font-size:12px; color:#777; } .pl.active .nm { color:#c0392b; font-weight:bold; }
+.pl .sc { font-size:19px; font-weight:800; } .pl .sc small { font-size:11px; font-weight:normal; color:#999; }
 
-  /* 나란히 서기 가이드 */
-  #zoneGuide{position:absolute;inset:0;display:flex;pointer-events:none;opacity:.4}
-  #zoneGuide .zone{flex:1}
-  #zoneGuide .zone:first-child{border-right:3px dashed rgba(255,255,255,.3)}
+.boardwrap { background:#e9e2d0; border-radius:14px; padding:12px; min-height:170px; margin-bottom:12px; }
+.boardlabel { font-size:12px; color:#8a7b50; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; }
+.board { display:grid; gap:8px; }
+.board.lg { grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); }
+.board.md { grid-template-columns:repeat(auto-fill, minmax(112px,1fr)); }
+.board.sm { grid-template-columns:repeat(auto-fill, minmax(88px,1fr)); }
+.bcard { background:#fffdf5; border:2px solid #d8c9a0; border-radius:10px; text-align:center; position:relative;
+         padding:16px 4px 10px; display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; }
+.bcard.trap { background:#e8f1fb; border-color:#5f8fc9; }
+.bcard.new { border-color:#c0392b; box-shadow:0 0 0 3px rgba(192,57,43,.25); }
+.bcard .no { position:absolute; top:3px; left:6px; font-size:10px; color:#b0a070; font-weight:bold; }
+.bcard .newtag { position:absolute; top:3px; right:5px; font-size:9px; background:#c0392b; color:#fff; border-radius:6px; padding:1px 5px; font-weight:bold; }
+.bcard .emo { line-height:1.05; }
+.board.lg .emo { font-size:40px; } .board.md .emo { font-size:26px; } .board.sm .emo { display:none; }
+.board.sm.age5 .emo { display:block; font-size:34px; }
+.bcard .w { font-weight:800; word-break:keep-all; line-height:1.85; }
+.board.lg .w { font-size:17px; } .board.md .w { font-size:14px; } .board.sm .w { font-size:12.5px; }
+.bcard.trap .w { color:#1a4d8f; }
+.bcard.speaking { animation:pulse 0.9s infinite; border-color:#2e6fe0; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(46,111,224,.4);} 50%{box-shadow:0 0 0 9px rgba(46,111,224,.12);} }
+.syl { position:relative; display:inline-block; }
+.syl.b::before, .syl.r::before { content:'●'; position:absolute; top:-0.95em; left:50%; transform:translateX(-50%); font-size:.4em; }
+.syl.b::before { color:#2e6fe0; } .syl.r::before { color:#e0472f; }
+.empty { grid-column:1/-1; text-align:center; color:#b0a070; font-size:14px; padding:38px 0; }
 
-  /* ▼ 원거리 가독용 대형 계측 패널 (화면 하단 오버레이) */
-  #hud{
-    position:absolute;left:0;right:0;bottom:0;
-    background:linear-gradient(transparent, rgba(14,20,32,.82) 22%, rgba(14,20,32,.92));
-    padding:20px 24px 22px;
-    display:flex;gap:26px;align-items:flex-end;justify-content:center;flex-wrap:wrap;
-    pointer-events:none;
-  }
-  .hud-item{text-align:center;line-height:1}
-  .hud-label{font-size:1.1rem;color:var(--ink-soft);font-weight:600;margin-bottom:6px}
-  .hud-val{font-family:var(--mono);font-weight:800;font-size:4.2rem;letter-spacing:-.02em}
-  .hud-sub{font-size:.95rem;color:var(--ink-soft);margin-top:2px}
-  @media (max-width:820px){ .hud-val{font-size:3rem} .hud-label{font-size:.9rem} #hud{gap:16px} }
+.bottom { display:flex; gap:14px; align-items:stretch; }
+.deck { width:130px; min-height:120px; border-radius:12px; cursor:pointer; flex-shrink:0;
+        background:repeating-linear-gradient(45deg,#7a3b2e,#7a3b2e 10px,#8a4b3e 10px,#8a4b3e 20px);
+        color:#f5e6c8; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+        font-weight:800; font-size:15px; box-shadow:0 4px 10px rgba(0,0,0,.25); }
+.deck .cnt { font-size:12px; font-weight:normal; opacity:.9; }
+.deck.done { opacity:.4; cursor:default; }
+.special-show { flex-shrink:0; width:130px; border-radius:12px; background:#fbeee8; border:2px solid #d99b7f;
+                display:none; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px; text-align:center; }
+.special-show .emo { font-size:30px; } .special-show .nm { font-weight:800; font-size:14px; }
+.rightpane { flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center; }
+.timerwrap { height:12px; background:#e5dcc5; border-radius:6px; overflow:hidden; visibility:hidden; }
+.timerbar { height:100%; width:100%; background:linear-gradient(90deg,#27ae60,#f1c40f,#c0392b); }
+.timerlabel { font-size:11px; color:#a99a70; text-align:right; min-height:14px; }
+.msg { font-size:15px; font-weight:bold; color:#6b5b2e; min-height:22px; }
+.ctrl { display:flex; gap:8px; flex-wrap:wrap; }
+.btn { padding:12px 22px; font-size:16px; font-weight:bold; border:none; border-radius:12px; cursor:pointer; color:#fff; }
+.btn.ok { background:#27ae60; } .btn.no { background:#c0392b; } .btn.nx { background:#6b5b2e; } .btn.pk { background:#3d76c2; }
+.btn.tts { background:#8a6bbf; }
+.help { text-align:center; font-size:12px; color:#a99a70; margin-top:12px; }
 
-  .v-good{color:var(--good)} .v-warn{color:var(--warn)} .v-bad{color:var(--bad)}
-  .v-p1{color:var(--p1)} .v-p2{color:var(--p2)}
-
-  /* 시작/카운트다운 오버레이 */
-  #startCover{position:absolute;inset:0;background:rgba(14,20,32,.94);display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:16px;text-align:center;padding:22px;z-index:5}
-  #startCover h2{font-size:1.15rem;font-weight:800}
-  #startCover p{color:var(--ink-soft);font-size:.88rem;line-height:1.7;max-width:460px}
-  #startCover ol{text-align:left;color:var(--ink-soft);font-size:.84rem;line-height:1.85;max-width:460px;padding-left:20px}
-  .big-btn{font:inherit;font-size:1.05rem;font-weight:700;cursor:pointer;background:var(--p1);color:#0E1420;
-    border:none;border-radius:12px;padding:16px 44px}
-  .big-btn:active{transform:scale(.97)}
-  .big-btn.alt{background:var(--p2)}
-  .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  #errBox{color:var(--bad);font-size:.84rem;max-width:460px;line-height:1.6;display:none;
-    background:rgba(248,113,113,.1);border:1px solid var(--bad);border-radius:8px;padding:12px}
-
-  /* 카운트다운 대형 숫자 */
-  #countdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    z-index:6;pointer-events:none}
-  #countdown span{font-family:var(--mono);font-weight:800;font-size:30vh;color:var(--p1);
-    text-shadow:0 0 40px rgba(0,0,0,.7)}
+/* ---------- 종료 ---------- */
+.over { display:none; background:#f5f1e8; border-radius:20px; padding:48px 32px; text-align:center; }
+.over h1 { font-size:26px; color:#5a4a1e; margin-bottom:10px; }
+.over .win { font-size:36px; font-weight:800; color:#c0392b; margin:14px 0 22px; }
+.over table { margin:0 auto 26px; border-collapse:collapse; font-size:16px; }
+.over td { padding:6px 18px; border-bottom:1px solid #ddd; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>2인 포즈 추적 검증</h1>
-  <span class="ver">proto_v0.2</span>
-  <div class="spacer"></div>
-  <button class="ctrl-btn toggle-on" id="voiceBtn">🔊 음성 켜짐</button>
-  <button class="ctrl-btn" id="resetBtn">계측 초기화</button>
-</header>
-
-<div id="stage">
-  <video id="video" playsinline autoplay muted></video>
-  <canvas id="canvas"></canvas>
-  <div id="zoneGuide"><div class="zone"></div><div class="zone"></div></div>
-
-  <!-- 대형 계측 패널 -->
-  <div id="hud">
-    <div class="hud-item">
-      <div class="hud-label">FPS</div>
-      <div class="hud-val" id="fps">–</div>
-      <div class="hud-sub">최저 <span id="minFps">–</span></div>
-    </div>
-    <div class="hud-item">
-      <div class="hud-label">아빠</div>
-      <div class="hud-val v-p1" id="p1stat">–</div>
-    </div>
-    <div class="hud-item">
-      <div class="hud-label">아이</div>
-      <div class="hud-val v-p2" id="p2stat">–</div>
-    </div>
-    <div class="hud-item">
-      <div class="hud-label">2인 유지율</div>
-      <div class="hud-val" id="dualRate">–</div>
-      <div class="hud-sub">겹침 <span id="overlapV">–</span></div>
-    </div>
-  </div>
-
-  <div id="countdown"><span id="cdNum">5</span></div>
-
-  <div id="startCover">
-    <h2>👨‍👧 두 사람 나란히 서기 검증 v0.2</h2>
-    <p>계측 글자를 크게 키우고 <b>음성 안내</b>를 넣었어요. 멀리서도 화면 아래 큰 숫자가 보이고, 한 명을 놓치면 소리로 알려줍니다.</p>
-    <ol>
-      <li>아이패드를 세워 두 사람 전신이 다 보이게 두세요</li>
-      <li>화면 <b>왼쪽 아빠, 오른쪽 아이</b>, 겹치지 말고 나란히</li>
-      <li>"5초 후 시작"을 누르면 카운트다운 뒤 계측이 시작돼요 — 그 사이 제자리로</li>
-    </ol>
-    <div class="btn-row">
-      <button class="big-btn" id="startBtn">바로 시작</button>
-      <button class="big-btn alt" id="startDelayBtn">5초 후 시작</button>
-    </div>
-    <div id="errBox"></div>
+<div class="screen setup" id="setup">
+  <h1>🏭 간장공장공장장</h1>
+  <div class="tag">판에 쌓인 카드를 처음부터 끝까지, 실수 없이!</div>
+  <h3>연령</h3><div class="optrow" id="ageRow"></div>
+  <h3>모드</h3><div class="optrow" id="modeRow"></div>
+  <h3>인원</h3><div class="optrow" id="plRow"></div>
+  <button class="startbtn" onclick="startGame()">게임 시작 (Enter)</button>
+  <div class="rulebox">
+    ① 내 차례에 카드 더미를 뒤집으면 판에 카드가 한 장 추가돼요.<br>
+    ② 판의 <b>1번 카드부터 새 카드까지 전부</b> 순서대로 읽어요. 판정은 함께 듣는 사람이!<br>
+    ③ 실패하면 판의 카드를 전부 벌점으로 가져가요. 판이 가득 찬 상태에서 성공하면 라운드 클리어!<br>
+    ④ 카드 더미가 떨어지면 게임 끝 — <b>벌점 카드가 가장 적은 사람이 승리</b>
   </div>
 </div>
 
-<script type="module">
-import { PoseLandmarker, FilesetResolver }
-  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+<div class="screen game" id="game">
+  <div class="topbar"><div id="modeinfo"></div><div id="dirinfo"></div></div>
+  <div class="players" id="players"></div>
+  <div class="boardwrap">
+    <div class="boardlabel"><span id="boardcount"></span><span id="boardcap"></span></div>
+    <div class="board" id="board"></div>
+  </div>
+  <div class="bottom">
+    <div class="deck" id="deck" onclick="onDeck()"><div>카드 더미</div><div class="cnt" id="deckcnt"></div></div>
+    <div class="special-show" id="specialshow"></div>
+    <div class="rightpane">
+      <div class="msg" id="msg"></div>
+      <div class="timerwrap" id="timerwrap"><div class="timerbar" id="timerbar"></div></div>
+      <div class="timerlabel" id="timerlabel"></div>
+      <div class="ctrl" id="ctrl"></div>
+    </div>
+  </div>
+  <div class="help">Enter/더미 클릭 = 카드 추가 · O = 성공, X = 실패 · 파란카드는 어순이 섞여 있어요(파란점=앞으로 온 글자, 빨간점=뒤로 간 글자)</div>
+</div>
 
-const video=document.getElementById("video"), canvas=document.getElementById("canvas"), ctx=canvas.getContext("2d");
-const startCover=document.getElementById("startCover"), errBox=document.getElementById("errBox");
-const el={fps:document.getElementById("fps"),minFps:document.getElementById("minFps"),
-  p1:document.getElementById("p1stat"),p2:document.getElementById("p2stat"),
-  dual:document.getElementById("dualRate"),overlap:document.getElementById("overlapV")};
+<div class="screen over" id="over">
+  <h1>게임 종료!</h1>
+  <div class="win" id="winner"></div>
+  <table id="finalScores"></table>
+  <button class="startbtn" onclick="location.reload()">다시 하기</button>
+</div>
 
-let landmarker=null, running=false, lastVideoTime=-1;
-let fpsSamples=[], minFpsSeen=Infinity, framesTotal=0, framesDual=0;
-let voiceOn=true, lastSpokenState="", lastSpeakAt=0;
+<script>
+const DATA = {"version": "3.1", "game": "간장공장공장장 앱 (가칭)", "notes": ["일반카드: 단어 자체의 발음 꼬임이 난이도의 핵심. 성인/15세는 인터넷 경험담(인스티즈, 루리웹, 절대음감 놀이)에서 수집한 실제 어려운 단어 + 난이도 공식(ㅡ+ㄹ연속, 격음경음교차, 유사음절반복, 외래어ㅍㅊ연쇄)으로 창작한 단어.", "함정카드(파란카드): 원본 단어의 블록 어순을 뒤섞은 것. 예: 검은색반팔티 → 반팔색검은티. 자리가 바뀐 블록의 모든 글자 위에 점 표시 — 앞으로 온 블록은 파란점(blueDots), 뒤로 간 블록은 빨간점(redDots). base는 원본(화면 비노출).", "emoji는 프로토타입용 이미지 플레이스홀더. 정식 버전은 일러스트로 교체.", "age5는 TTS로 읽어주며 현재 카드 하이라이트 → 따라 말하기.", "누적 읽기: 뒤집힌 카드는 판에 쌓이고, 자기 차례에 1번부터 새 카드까지 전부 읽는다.", "제한시간 = perCardSec × 판 카드 수. 전문가 모드는 ×0.7. age5는 시간 무제한.", "라운드: 실패하면 판의 카드 전부를 벌점으로 가져가고 판을 비운다. boardCap 도달 상태에서 성공하면 라운드 클리어(판 정리, 벌점 없음). 게임 종료 시 벌점 카드가 가장 적은 사람이 승리.", "age5: 판 상한 8장 + 카드 항상 대형(그림 필수 노출). TTS가 판 전체를 순서대로 읽어주며 현재 카드 하이라이트."], "ageSettings": {"age5": {"label": "5세", "tts": true, "highlight": true, "imageRequired": true, "perCardSec": null, "boardCap": 8, "cardSize": "large"}, "age10": {"label": "10세", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 5, "boardCap": 10, "cardSize": "auto"}, "age15": {"label": "15세", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 3.5, "boardCap": 12, "cardSize": "auto"}, "adult": {"label": "성인", "tts": false, "highlight": false, "imageRequired": false, "perCardSec": 2.5, "boardCap": 12, "cardSize": "auto"}}, "modes": {"basic": {"label": "기본", "cards": ["normal"]}, "advanced": {"label": "심화", "cards": ["normal", "trap"]}, "expert": {"label": "전문가", "cards": ["normal", "trap", "special"], "timeMultiplier": 0.7}}, "specialCards": [{"id": "reverse", "name": "방향전환", "count": 2, "emoji": "🔄", "effect": "진행 방향이 반대로 바뀐다"}, {"id": "encore", "name": "한번더", "count": 2, "emoji": "🔁", "effect": "직전 카드를 다음 차례 사람이 한 번 더 읽는다"}, {"id": "pass", "name": "패스", "count": 2, "emoji": "⏭️", "effect": "자기 차례를 다음 사람에게 넘긴다"}, {"id": "together", "name": "다같이", "count": 2, "emoji": "📣", "effect": "전원이 동시에 다음 카드를 읽는다. 가장 늦거나 틀린 사람이 벌점"}], "ages": {"age5": {"normal": [{"text": "사과", "emoji": "🍎"}, {"text": "바나나", "emoji": "🍌"}, {"text": "포도", "emoji": "🍇"}, {"text": "수박", "emoji": "🍉"}, {"text": "딸기", "emoji": "🍓"}, {"text": "토마토", "emoji": "🍅"}, {"text": "당근", "emoji": "🥕"}, {"text": "옥수수", "emoji": "🌽"}, {"text": "고구마", "emoji": "🍠"}, {"text": "버섯", "emoji": "🍄"}, {"text": "코끼리", "emoji": "🐘"}, {"text": "기린", "emoji": "🦒"}, {"text": "사자", "emoji": "🦁"}, {"text": "호랑이", "emoji": "🐯"}, {"text": "토끼", "emoji": "🐰"}, {"text": "거북이", "emoji": "🐢"}, {"text": "펭귄", "emoji": "🐧"}, {"text": "돌고래", "emoji": "🐬"}, {"text": "문어", "emoji": "🐙"}, {"text": "나비", "emoji": "🦋"}, {"text": "꿀벌", "emoji": "🐝"}, {"text": "병아리", "emoji": "🐤"}, {"text": "강아지", "emoji": "🐶"}, {"text": "고양이", "emoji": "🐱"}, {"text": "다람쥐", "emoji": "🐿️"}, {"text": "원숭이", "emoji": "🐵"}, {"text": "하마", "emoji": "🦛"}, {"text": "악어", "emoji": "🐊"}, {"text": "상어", "emoji": "🦈"}, {"text": "비행기", "emoji": "✈️"}, {"text": "자동차", "emoji": "🚗"}, {"text": "버스", "emoji": "🚌"}, {"text": "기차", "emoji": "🚂"}, {"text": "소방차", "emoji": "🚒"}, {"text": "경찰차", "emoji": "🚓"}, {"text": "자전거", "emoji": "🚲"}, {"text": "로켓", "emoji": "🚀"}, {"text": "헬리콥터", "emoji": "🚁"}, {"text": "우산", "emoji": "☂️"}, {"text": "무지개", "emoji": "🌈"}, {"text": "눈사람", "emoji": "⛄"}, {"text": "별똥별", "emoji": "🌠"}, {"text": "구름", "emoji": "☁️"}, {"text": "나무", "emoji": "🌳"}, {"text": "바다", "emoji": "🌊"}, {"text": "도넛", "emoji": "🍩"}, {"text": "케이크", "emoji": "🍰"}, {"text": "피자", "emoji": "🍕"}, {"text": "김밥", "emoji": "🍙"}, {"text": "우유", "emoji": "🥛"}], "trap": [{"text": "리끼코", "base": "코끼리", "emoji": "🐘", "blueDots": [0], "redDots": [2]}, {"text": "나바나", "base": "바나나", "emoji": "🍌", "blueDots": [0], "redDots": [1]}, {"text": "개지무", "base": "무지개", "emoji": "🌈", "blueDots": [0], "redDots": [2]}, {"text": "차동자", "base": "자동차", "emoji": "🚗", "blueDots": [0], "redDots": [2]}, {"text": "기행비", "base": "비행기", "emoji": "✈️", "blueDots": [0], "redDots": [2]}, {"text": "사람눈", "base": "눈사람", "emoji": "⛄", "blueDots": [0, 1], "redDots": [2]}, {"text": "지아강", "base": "강아지", "emoji": "🐶", "blueDots": [0], "redDots": [2]}, {"text": "이양고", "base": "고양이", "emoji": "🐱", "blueDots": [0], "redDots": [2]}, {"text": "차방소", "base": "소방차", "emoji": "🚒", "blueDots": [0], "redDots": [2]}, {"text": "이북거", "base": "거북이", "emoji": "🐢", "blueDots": [0], "redDots": [2]}]}, "age10": {"normal": [{"text": "건곤감리", "emoji": "🇰🇷"}, {"text": "샘속송사리", "emoji": "🐟"}, {"text": "간장공장", "emoji": "🏭"}, {"text": "공장공장장", "emoji": "👷"}, {"text": "콩깍지깍지", "emoji": "🫛"}, {"text": "딸기찰떡", "emoji": "🍓"}, {"text": "찹쌀찐빵", "emoji": "🥟"}, {"text": "청포도풍선", "emoji": "🎈"}, {"text": "삼각김밥상", "emoji": "🍙"}, {"text": "김치찌개집", "emoji": "🍲"}, {"text": "짬뽕찜닭", "emoji": "🍜"}, {"text": "떡볶이볶기", "emoji": "🍢"}, {"text": "산삼장수", "emoji": "🌿"}, {"text": "솔숲산새", "emoji": "🐦"}, {"text": "도둑돛단배", "emoji": "⛵"}, {"text": "달콤딸기잼", "emoji": "🫙"}, {"text": "병뚜껑뚜껑", "emoji": "🍾"}, {"text": "꿀꺽꿀꺽", "emoji": "🥤"}, {"text": "쑥쑥쑥갓", "emoji": "🥬"}, {"text": "짹짹참새", "emoji": "🐦"}, {"text": "까치깍깍", "emoji": "🐦‍⬛"}, {"text": "콩콩콩나물", "emoji": "🌱"}, {"text": "햅쌀쌀밥", "emoji": "🍚"}, {"text": "뻥튀기튀김", "emoji": "🍘"}, {"text": "꼬불꼬불길", "emoji": "🛣️"}, {"text": "빙글뱅글", "emoji": "🌀"}, {"text": "알록달록", "emoji": "🌈"}, {"text": "울퉁불퉁길", "emoji": "🚧"}, {"text": "얼룩덜룩", "emoji": "🐄"}, {"text": "곰곰곰돌이", "emoji": "🧸"}, {"text": "총총총각무", "emoji": "🥕"}, {"text": "늠름낙타", "emoji": "🐫"}, {"text": "낄낄깔깔", "emoji": "😂"}, {"text": "씩씩쑥쑥", "emoji": "💪"}, {"text": "짤랑잘랑", "emoji": "🔔"}, {"text": "철렁출렁", "emoji": "🌊"}, {"text": "파릇포릇", "emoji": "🌿"}, {"text": "오돌토돌", "emoji": "🥒"}, {"text": "우당탕탕", "emoji": "💥"}, {"text": "곤드레나물", "emoji": "🥬"}, {"text": "감자국감자", "emoji": "🥔"}, {"text": "갓김치갓", "emoji": "🥬"}, {"text": "굴국밥굴", "emoji": "🦪"}, {"text": "낙지짬뽕", "emoji": "🐙"}, {"text": "단짠단짠", "emoji": "🍭"}, {"text": "새콤달콤", "emoji": "🍬"}, {"text": "말랑몰랑", "emoji": "🍡"}, {"text": "통통통닭", "emoji": "🍗"}, {"text": "쫀득쫀득", "emoji": "🍡"}, {"text": "짭짤한땅콩", "emoji": "🥜"}], "trap": [{"text": "공장간장", "base": "간장공장", "emoji": "🏭", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "찰떡딸기", "base": "딸기찰떡", "emoji": "🍓", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "깍지콩깍지", "base": "콩깍지깍지", "emoji": "🫛", "blueDots": [0, 1], "redDots": [2, 3, 4]}, {"text": "달콤새콤", "base": "새콤달콤", "emoji": "🍬", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "탕탕우당", "base": "우당탕탕", "emoji": "💥", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "쌀밥햅쌀", "base": "햅쌀쌀밥", "emoji": "🍚", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "튀김뻥튀기", "base": "뻥튀기튀김", "emoji": "🍘", "blueDots": [0, 1], "redDots": [2, 3, 4]}, {"text": "곰돌이곰곰", "base": "곰곰곰돌이", "emoji": "🧸", "blueDots": [0, 1, 2], "redDots": [3, 4]}, {"text": "참새짹짹", "base": "짹짹참새", "emoji": "🐦", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "찐빵찹쌀", "base": "찹쌀찐빵", "emoji": "🥟", "blueDots": [0, 1], "redDots": [2, 3]}]}, "age15": {"normal": [{"text": "역삼역옆집", "emoji": "🏠"}, {"text": "시내스시식당", "emoji": "🍣"}, {"text": "꽃에꽂힌꽁치", "emoji": "🐟"}, {"text": "경찰청창살", "emoji": "🚔"}, {"text": "촉촉초코칩", "emoji": "🍪"}, {"text": "안촉촉초코칩", "emoji": "🍪"}, {"text": "신선한생선", "emoji": "🐟"}, {"text": "청춘춘천행", "emoji": "🚆"}, {"text": "법학박사", "emoji": "🎓"}, {"text": "샤워실샤워", "emoji": "🚿"}, {"text": "안양양념장", "emoji": "🥫"}, {"text": "양양역양갱", "emoji": "🍮"}, {"text": "척척박사", "emoji": "🧑‍🎓"}, {"text": "칠월칠일밤", "emoji": "🌌"}, {"text": "백합밭백합", "emoji": "🌷"}, {"text": "솔잎숲산삼", "emoji": "🌲"}, {"text": "햅쌀찹쌀떡", "emoji": "🍡"}, {"text": "돌솥비빔밥", "emoji": "🍚"}, {"text": "짧은짚신짝", "emoji": "🥿"}, {"text": "붉은벽돌빛", "emoji": "🧱"}, {"text": "검붉은껌값", "emoji": "🍬"}, {"text": "꼬막깍두기", "emoji": "🥘"}, {"text": "깻잎깻잎국", "emoji": "🥬"}, {"text": "얇은약봉지", "emoji": "💊"}, {"text": "옆문엿보기", "emoji": "👀"}, {"text": "은행원연봉", "emoji": "💰"}, {"text": "팥빙수빙수", "emoji": "🍧"}, {"text": "솥뚜껑뚜껑", "emoji": "🍳"}, {"text": "벚꽃빛봄밤", "emoji": "🌸"}, {"text": "낮달낚시꾼", "emoji": "🎣"}, {"text": "얄팍한약값", "emoji": "💊"}, {"text": "튼튼통나무", "emoji": "🪵"}, {"text": "씀바귀쌈밥", "emoji": "🥗"}, {"text": "참치찹쌀죽", "emoji": "🥣"}, {"text": "멸치말리기", "emoji": "🐟"}, {"text": "놀란노루뿔", "emoji": "🦌"}, {"text": "깐콩깍지", "emoji": "🫛"}, {"text": "단팥빵팥빵", "emoji": "🥐"}, {"text": "통찐빵찐빵", "emoji": "🥟"}, {"text": "새우쌀과자", "emoji": "🍤"}, {"text": "찹쌀누룽지", "emoji": "🍘"}, {"text": "요구르트류", "emoji": "🥛"}, {"text": "유리잔유리", "emoji": "🥃"}, {"text": "의류수거함", "emoji": "👕"}, {"text": "육회비빔밥", "emoji": "🍚"}, {"text": "만두찐만두", "emoji": "🥟"}, {"text": "꼬다리김밥", "emoji": "🍙"}, {"text": "늴리리야", "emoji": "🎶"}, {"text": "청단풍단풍", "emoji": "🍁"}, {"text": "얽힌실타래", "emoji": "🧶"}], "trap": [{"text": "초코촉촉칩", "base": "촉촉초코칩", "emoji": "🍪", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "생선한신선", "base": "신선한생선", "emoji": "🐟", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "창살청경찰", "base": "경찰청창살", "emoji": "🚔", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "박사법학", "base": "법학박사", "emoji": "🎓", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "옆집역역삼", "base": "역삼역옆집", "emoji": "🏠", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "연봉원은행", "base": "은행원연봉", "emoji": "💰", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "벽돌붉은빛", "base": "붉은벽돌빛", "emoji": "🧱", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "비빔솥돌밥", "base": "돌솥비빔밥", "emoji": "🍚", "blueDots": [0, 1], "redDots": [3]}, {"text": "빙수팥빙수", "base": "팥빙수빙수", "emoji": "🍧", "blueDots": [0, 1], "redDots": [2]}, {"text": "수거의류함", "base": "의류수거함", "emoji": "👕", "blueDots": [0, 1], "redDots": [2, 3]}]}, "adult": {"normal": [{"text": "간장공장공장장", "emoji": "🏭"}, {"text": "왕밤빵", "emoji": "🥐"}, {"text": "홍합왕밤빵", "emoji": "🦪"}, {"text": "로얄뉴로얄", "emoji": "🚗"}, {"text": "대우로얄뉴로얄", "emoji": "🚙"}, {"text": "확률분포표", "emoji": "📊"}, {"text": "영동용봉탕", "emoji": "🍲"}, {"text": "척추측만증", "emoji": "🦴"}, {"text": "돌산갓김치", "emoji": "🥬"}, {"text": "남내리미나리", "emoji": "🌿"}, {"text": "꿩잎볶음쌈", "emoji": "🥬"}, {"text": "단팥맛통찐빵", "emoji": "🥟"}, {"text": "표준규격품", "emoji": "📏"}, {"text": "철수책상철책상", "emoji": "🪑"}, {"text": "시골찹쌀햇찹쌀", "emoji": "🌾"}, {"text": "도시찹쌀촌찹쌀", "emoji": "🍚"}, {"text": "신진샹숑가수", "emoji": "🎤"}, {"text": "신춘샹숑쇼우", "emoji": "🎭"}, {"text": "챠프포프킨", "emoji": "🪆"}, {"text": "치스챠코프", "emoji": "🪆"}, {"text": "라흐마니노프", "emoji": "🎹"}, {"text": "스르프스카", "emoji": "🗺️"}, {"text": "크르클랄르", "emoji": "🌀"}, {"text": "특허허가과", "emoji": "📋"}, {"text": "미트소스소세지", "emoji": "🌭"}, {"text": "스위스사는스미스", "emoji": "🏔️"}, {"text": "점진적증폭", "emoji": "📈"}, {"text": "물류유통량", "emoji": "🚚"}, {"text": "육류유통업", "emoji": "🥩"}, {"text": "유류분반환", "emoji": "⚖️"}, {"text": "열역학법칙", "emoji": "🔥"}, {"text": "폭발력측정", "emoji": "💣"}, {"text": "압축팽창압", "emoji": "🎈"}, {"text": "특촬물출연", "emoji": "🦸"}, {"text": "굵직굵직", "emoji": "🪵"}, {"text": "얇디얇은옷", "emoji": "👗"}, {"text": "짧디짧은봄", "emoji": "🌸"}, {"text": "넓둥근돌", "emoji": "🪨"}, {"text": "밝힐밝기", "emoji": "💡"}, {"text": "붉디붉은빛", "emoji": "🔴"}, {"text": "닭볶음탕값", "emoji": "🍗"}, {"text": "꿩샤브샤브", "emoji": "🍲"}, {"text": "쭈꾸미쫄면", "emoji": "🐙"}, {"text": "짬뽕맛땅콩빵", "emoji": "🥜"}, {"text": "콩팥팥콩", "emoji": "🫘"}, {"text": "흙받기받침", "emoji": "🧱"}, {"text": "칡넝쿨칡즙", "emoji": "🌿"}, {"text": "곶감꽃값", "emoji": "🍂"}, {"text": "낚싯줄값", "emoji": "🎣"}, {"text": "폐렴예방약", "emoji": "💊"}], "trap": [{"text": "반팔색검은티", "base": "검은색반팔티", "emoji": "👕", "blueDots": [0, 1], "redDots": [3, 4]}, {"text": "분포확률표", "base": "확률분포표", "emoji": "📊", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "용봉영동탕", "base": "영동용봉탕", "emoji": "🍲", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "왕밤홍합빵", "base": "홍합왕밤빵", "emoji": "🦪", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "촌찹쌀도시찹쌀", "base": "도시찹쌀촌찹쌀", "emoji": "🍚", "blueDots": [0], "redDots": [3, 4]}, {"text": "통팥맛단찐빵", "base": "단팥맛통찐빵", "emoji": "🥟", "blueDots": [0], "redDots": [3]}, {"text": "측만척추증", "base": "척추측만증", "emoji": "🦴", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "샹숑신진가수", "base": "신진샹숑가수", "emoji": "🎤", "blueDots": [0, 1], "redDots": [2, 3]}, {"text": "뉴로얄로얄", "base": "로얄뉴로얄", "emoji": "🚗", "blueDots": [0], "redDots": [1, 2]}, {"text": "볶음꿩잎쌈", "base": "꿩잎볶음쌈", "emoji": "🥬", "blueDots": [0, 1], "redDots": [2, 3]}]}}};
+const AGES = ["age5","age10","age15","adult"];
+const MODES = [["basic","일반카드만"],["advanced","+ 함정카드"],["expert","+ 특수카드 · 시간 30% 단축"]];
 
-const CONNECTIONS=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],
-  [23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[28,30],[30,32],[0,11],[0,12]];
-const COLORS=["#FF6B4A","#3DD6C4"];
+let sel = { age:"age10", mode:"advanced", np:2 };
+let deck = [], board = [], players = [], cur = 0, dir = 1, state = "setup";
+let timerId = null, timeLeft = 0, timeMax = 0, encoreMode = false, togetherNext = false;
 
-/* ── 음성 안내 ── */
-function speak(text){
-  if(!voiceOn) return;
-  const now=performance.now();
-  if(now-lastSpeakAt < 1200) return;        // 너무 잦은 발화 방지
-  lastSpeakAt=now;
-  try{
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang="ko-KR"; u.rate=1.05;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function announceState(n){
-  let s = n>=2 ? "dual" : n===1 ? "one" : "none";
-  if(s===lastSpokenState) return;
-  lastSpokenState=s;
-  if(s==="dual") speak("두 명 인식");
-  else if(s==="one") speak("한 명 놓침");
-  else speak("아무도 없음");
-}
-
-function showError(m){errBox.style.display="block";errBox.innerHTML=m;}
-
-async function init(delay){
-  errBox.style.display="none";
-  document.getElementById("startBtn").disabled=true;
-  document.getElementById("startDelayBtn").disabled=true;
-
-  let stream;
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:false});
-  }catch(e){
-    showError("카메라를 켤 수 없습니다.<br>· https 주소인지 확인 (file://는 iOS 불가)<br>· 사파리 카메라 권한 확인<br><br>"+e.message);
-    document.getElementById("startBtn").disabled=false;
-    document.getElementById("startDelayBtn").disabled=false;
-    return;
-  }
-  video.srcObject=stream;
-  await new Promise(r=>{video.onloadedmetadata=()=>{video.play();r();};});
-
-  try{
-    const vision=await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-    landmarker=await PoseLandmarker.createFromOptions(vision,{
-      baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
-      runningMode:"VIDEO",numPoses:2,
-      minPoseDetectionConfidence:0.4,minPosePresenceConfidence:0.4,minTrackingConfidence:0.4});
-  }catch(e){
-    showError("AI 모델 로드 실패. 새로고침 해주세요.<br><br>"+e.message);
-    return;
-  }
-
-  // 음성 엔진 워밍업 (iOS는 사용자 제스처 내에서 첫 호출 필요)
-  try{ speechSynthesis.speak(new SpeechSynthesisUtterance("")); }catch(e){}
-
-  startCover.style.display="none";
-
-  if(delay){
-    await countdown(5);
-    resetMetrics();      // 카운트다운 동안 값 오염 제거
-  }
-  running=true;
-  requestAnimationFrame(loop);
-}
-
-function countdown(sec){
-  return new Promise(res=>{
-    const box=document.getElementById("countdown"), num=document.getElementById("cdNum");
-    box.style.display="flex";
-    let n=sec; num.textContent=n; speak(n+"");
-    const t=setInterval(()=>{
-      n--;
-      if(n<=0){clearInterval(t);box.style.display="none";speak("시작");res();}
-      else{num.textContent=n;speak(n+"");}
-    },1000);
+function mkOpts(rowId, items, key){
+  const row = document.getElementById(rowId);
+  items.forEach(([val,label,small])=>{
+    const b = document.createElement('button');
+    b.className = 'opt' + (sel[key]===val ? ' sel':'');
+    b.innerHTML = label + (small?`<small>${small}</small>`:'');
+    b.onclick = ()=>{ sel[key]=val; [...row.children].forEach(c=>c.classList.remove('sel')); b.classList.add('sel'); };
+    row.appendChild(b);
   });
 }
+mkOpts('ageRow', AGES.map(a=>{
+  const s = DATA.ageSettings[a];
+  const info = s.perCardSec ? `장당 ${s.perCardSec}초 · 판 ${s.boardCap}장` : `읽어주기 · 판 ${s.boardCap}장`;
+  return [a, s.label, info];
+}), 'age');
+mkOpts('modeRow', MODES.map(([id,d])=>[id, DATA.modes[id].label, d]), 'mode');
+mkOpts('plRow', [2,3,4,5,6].map(n=>[n, n+'명']), 'np');
 
-function resizeCanvas(){canvas.width=video.videoWidth;canvas.height=video.videoHeight;}
-let lastFrameStamp=performance.now();
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-function loop(){
-  if(!running)return;
-  if(video.videoWidth&&canvas.width!==video.videoWidth)resizeCanvas();
-  const now=performance.now();
-  if(video.currentTime!==lastVideoTime&&landmarker){
-    lastVideoTime=video.currentTime;
-    const result=landmarker.detectForVideo(video,now);
-    draw(result);measure(result,now);
-  }
-  requestAnimationFrame(loop);
+function startGame(){
+  const ad = DATA.ages[sel.age];
+  deck = ad.normal.map(c=>({...c, type:'normal'}));
+  if(sel.mode!=='basic') deck = deck.concat(ad.trap.map(c=>({...c, type:'trap'})));
+  if(sel.mode==='expert') DATA.specialCards.forEach(s=>{ for(let i=0;i<s.count;i++) deck.push({...s, type:'special'}); });
+  shuffle(deck);
+  players = Array.from({length:sel.np},(_,i)=>({name:'플레이어'+(i+1), pen:0}));
+  cur = 0; dir = 1; board = []; state = 'idle'; encoreMode = false; togetherNext = false;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='block';
+  document.getElementById('modeinfo').textContent =
+    `${DATA.ageSettings[sel.age].label} · ${DATA.modes[sel.mode].label} 모드`;
+  setMsg(`${players[cur].name} 차례! 카드 더미를 뒤집으세요`);
+  renderAll();
 }
 
-function draw(result){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  const people=result.landmarks||[];
-  people.forEach((lm,idx)=>{
-    const color=COLORS[idx%2];
-    ctx.strokeStyle=color;ctx.lineWidth=5;
-    CONNECTIONS.forEach(([a,b])=>{if(lm[a]&&lm[b]){
-      ctx.beginPath();
-      ctx.moveTo(lm[a].x*canvas.width,lm[a].y*canvas.height);
-      ctx.lineTo(lm[b].x*canvas.width,lm[b].y*canvas.height);ctx.stroke();}});
-    ctx.fillStyle=color;
-    lm.forEach(p=>{ctx.beginPath();ctx.arc(p.x*canvas.width,p.y*canvas.height,6,0,Math.PI*2);ctx.fill();});
-    // 머리 위 대형 라벨 (거울 반전 보정: 텍스트만 다시 뒤집어 그림)
-    if(lm[0]){
-      const hx=lm[0].x*canvas.width, hy=lm[0].y*canvas.height-40;
-      ctx.save();
-      ctx.translate(hx,hy); ctx.scale(-1,1);   // 화면 전체가 scaleX(-1)이므로 글자 보정
-      ctx.font="800 46px -apple-system,sans-serif";
-      ctx.textAlign="center";
-      ctx.fillStyle=color;
-      ctx.strokeStyle="rgba(0,0,0,.6)"; ctx.lineWidth=6;
-      const tag = idx===0? "아빠 OK":"아이 OK";
-      ctx.strokeText(tag,0,0); ctx.fillText(tag,0,0);
-      ctx.restore();
+function setMsg(t){ document.getElementById('msg').textContent = t; }
+function setCtrl(h){ document.getElementById('ctrl').innerHTML = h; }
+
+function wordHTML(c){
+  if(c.type==='trap'){
+    return [...c.text].map((ch,i)=>{
+      const cls = c.blueDots.includes(i) ? ' b' : c.redDots.includes(i) ? ' r' : '';
+      return `<span class="syl${cls}">${ch}</span>`;
+    }).join('');
+  }
+  return c.text;
+}
+
+function boardSizeClass(){
+  if(sel.age==='age5') return 'lg age5';
+  const n = board.length;
+  return n<=6 ? 'lg' : n<=12 ? 'md' : 'sm';
+}
+
+function renderAll(){
+  document.getElementById('dirinfo').textContent = `진행 방향 ${dir===1?'→':'←'}`;
+  document.getElementById('deckcnt').textContent = deck.length + '장 남음';
+  document.getElementById('deck').classList.toggle('done', deck.length===0);
+  document.getElementById('players').innerHTML = players.map((p,i)=>
+    `<div class="pl${i===cur?' active':''}"><div class="nm">${p.name}</div><div class="sc">${p.pen}<small> 벌점</small></div></div>`).join('');
+  const cap = DATA.ageSettings[sel.age].boardCap;
+  document.getElementById('boardcount').textContent = `판 위 카드 ${board.length}장 — 전부 읽어야 해요!`;
+  document.getElementById('boardcap').textContent = `${cap}장 채우고 성공하면 라운드 클리어`;
+  const bd = document.getElementById('board');
+  bd.className = 'board ' + boardSizeClass();
+  if(board.length===0){
+    bd.innerHTML = `<div class="empty">아직 판이 비어 있어요 — 카드 더미를 뒤집으세요</div>`;
+  } else {
+    bd.innerHTML = board.map((c,i)=>{
+      const isNew = (state==='judging'||state==='together') && !encoreMode && i===board.length-1;
+      return `<div class="bcard ${c.type==='trap'?'trap':''} ${isNew?'new':''}" id="bc${i}">
+        <span class="no">${i+1}</span>${isNew?'<span class="newtag">NEW</span>':''}
+        <div class="emo">${c.emoji}</div><div class="w">${wordHTML(c)}</div></div>`;
+    }).join('');
+  }
+}
+
+/* ----- 진행 ----- */
+function onDeck(){ if(state==='idle') flipNext(); }
+
+function flipNext(){
+  if(deck.length===0){ endGame(); return; }
+  const card = deck.shift();
+  if(card.type==='special'){
+    state='special';
+    showSpecial(card);
+    return;
+  }
+  board.push(card);
+  beginReading(false);
+}
+
+function beginReading(isEncore){
+  encoreMode = isEncore;
+  state = togetherNext ? 'together' : 'judging';
+  renderAll();
+  const s = DATA.ageSettings[sel.age];
+  if(s.tts) speakBoard();
+  if(s.perCardSec){
+    timeMax = s.perCardSec * board.length * (sel.mode==='expert' ? DATA.modes.expert.timeMultiplier : 1);
+    startTimer();
+  }
+  if(state==='together'){
+    togetherNext = false;
+    setMsg('📣 모두 동시에 판 전체를 읽으세요! 가장 늦거나 틀린 사람은?');
+    setCtrl(players.map((p,i)=>`<button class="btn pk" onclick="togetherLose(${i})">${p.name}</button>`).join('')
+            + `<button class="btn nx" onclick="togetherLose(-1)">무승부</button>`);
+  } else {
+    setMsg(`${players[cur].name}: 1번부터 ${board.length}번까지 전부 읽기!` + (isEncore?' (한번더!)':''));
+    let extra = s.tts ? `<button class="btn tts" onclick="speakBoard()">🔊 다시 듣기</button>` : '';
+    setCtrl(`<button class="btn ok" onclick="judge(true)">성공 (O)</button><button class="btn no" onclick="judge(false)">실패 (X)</button>${extra}`);
+  }
+}
+
+function judge(ok){
+  if(state!=='judging') return;
+  stopTimer(); stopSpeak();
+  const cap = DATA.ageSettings[sel.age].boardCap;
+  if(ok){
+    if(board.length >= cap){
+      setMsg(`🎉 ${cap}장 완주! 라운드 클리어 — 판을 정리합니다`);
+      board = [];
+    } else {
+      setMsg('⭕ 성공! 판에 카드가 쌓입니다');
     }
-  });
+  } else {
+    players[cur].pen += board.length;
+    setMsg(`❌ 실패! ${players[cur].name} 벌점 +${board.length} — 새 라운드 시작`);
+    board = [];
+  }
+  nextTurn();
 }
 
-function overlapRatio(people){
-  if(people.length<2)return null;
-  const xr=lm=>{const xs=[11,12,23,24].map(i=>lm[i]?lm[i].x:null).filter(v=>v!==null);
-    return xs.length<2?null:[Math.min(...xs),Math.max(...xs)];};
-  const a=xr(people[0]),b=xr(people[1]);if(!a||!b)return null;
-  const inter=Math.max(0,Math.min(a[1],b[1])-Math.max(a[0],b[0]));
-  const union=Math.max(a[1],b[1])-Math.min(a[0],b[0]);
-  return union>0?inter/union:0;
+function togetherLose(idx){
+  if(state!=='together') return;
+  stopTimer(); stopSpeak();
+  if(idx>=0){ players[idx].pen += 1; setMsg(`${players[idx].name} 벌점 +1!`); }
+  else setMsg('무승부!');
+  nextTurn();
 }
 
-function measure(result,now){
-  const people=result.landmarks||[], n=people.length;
-  const dt=now-lastFrameStamp; lastFrameStamp=now;
-  fpsSamples.push(1000/dt); if(fpsSamples.length>30)fpsSamples.shift();
-  const avg=fpsSamples.reduce((s,v)=>s+v,0)/fpsSamples.length;
-  framesTotal++; if(n>=2)framesDual++;
-  if(framesTotal>15&&avg<minFpsSeen)minFpsSeen=avg;
-
-  el.fps.textContent=avg.toFixed(0);
-  el.fps.className="hud-val "+(avg>=20?"v-good":avg>=15?"v-warn":"v-bad");
-  el.minFps.textContent=minFpsSeen===Infinity?"–":minFpsSeen.toFixed(0);
-  el.minFps.className=minFpsSeen>=15?"v-good":minFpsSeen>=12?"v-warn":"v-bad";
-  el.p1.textContent=people[0]?"OK":"✕"; el.p1.className="hud-val "+(people[0]?"v-p1":"v-bad");
-  el.p2.textContent=people[1]?"OK":"✕"; el.p2.className="hud-val "+(people[1]?"v-p2":"v-bad");
-
-  const ov=overlapRatio(people);
-  if(ov!==null){el.overlap.textContent=(ov*100).toFixed(0)+"%";
-    el.overlap.className=ov<0.15?"v-good":ov<0.4?"v-warn":"v-bad";}
-  const rate=framesTotal?framesDual/framesTotal*100:0;
-  el.dual.textContent=rate.toFixed(0)+"%";
-  el.dual.className="hud-val "+(rate>=80?"v-good":rate>=50?"v-warn":"v-bad");
-
-  announceState(n);
+function showSpecial(card){
+  stopTimer();
+  const sp = document.getElementById('specialshow');
+  sp.style.display='flex';
+  sp.innerHTML = `<div class="emo">${card.emoji}</div><div class="nm">${card.name}</div>`;
+  let m='';
+  if(card.id==='reverse') m='진행 방향이 반대로!';
+  if(card.id==='encore') m = board.length ? '지금 판 전체를 다음 사람이 한 번 더!' : '판이 비어 있어 그냥 넘어갑니다';
+  if(card.id==='pass') m='차례를 넘깁니다!';
+  if(card.id==='together') m='다음 카드부터 모두 함께 읽습니다!';
+  setMsg(`✨ 특수카드 — ${m}`);
+  setCtrl(`<button class="btn nx" onclick="confirmSpecial('${card.id}')">확인 (Enter)</button>`);
+  renderAll();
 }
 
-function resetMetrics(){fpsSamples=[];minFpsSeen=Infinity;framesTotal=0;framesDual=0;lastSpokenState="";}
+function confirmSpecial(id){
+  if(state!=='special') return;
+  document.getElementById('specialshow').style.display='none';
+  if(id==='reverse'){ dir *= -1; nextTurn(); }
+  else if(id==='pass'){ nextTurn(); }
+  else if(id==='together'){ togetherNext = true; nextTurn(); }
+  else if(id==='encore'){
+    if(board.length){ advance(); beginReading(true); }
+    else nextTurn();
+  }
+}
 
-document.getElementById("resetBtn").addEventListener("click",resetMetrics);
-document.getElementById("voiceBtn").addEventListener("click",function(){
-  voiceOn=!voiceOn;
-  this.textContent=voiceOn?"🔊 음성 켜짐":"🔇 음성 꺼짐";
-  this.classList.toggle("toggle-on",voiceOn);
+function advance(){ cur = (cur + dir + players.length) % players.length; }
+
+function nextTurn(){
+  advance();
+  state='idle';
+  setCtrl('');
+  renderAll();
+  if(deck.length===0){ endGame(); return; }
+  setTimeout(()=>{
+    setMsg(document.getElementById('msg').textContent + `  ·  ${players[cur].name} 차례!`);
+  }, 60);
+}
+
+/* ----- 타이머 (전체 시간 하나만 표시) ----- */
+function startTimer(){
+  document.getElementById('timerwrap').style.visibility='visible';
+  document.getElementById('timerlabel').textContent =
+    `전체 ${Math.round(timeMax*10)/10}초 (장당 ${DATA.ageSettings[sel.age].perCardSec}초 × ${board.length}장${sel.mode==='expert'?' × 0.7':''})`;
+  timeLeft = timeMax;
+  timerId = setInterval(()=>{
+    timeLeft -= 0.05;
+    document.getElementById('timerbar').style.width = Math.max(0, timeLeft/timeMax*100) + '%';
+    if(timeLeft<=0){
+      stopTimer();
+      if(state==='judging') judge(false);
+      else if(state==='together') togetherLose(cur);
+    }
+  }, 50);
+}
+function stopTimer(){
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  document.getElementById('timerwrap').style.visibility='hidden';
+  document.getElementById('timerlabel').textContent='';
+  document.getElementById('timerbar').style.width='100%';
+}
+
+/* ----- 5세: 판 전체 TTS + 순차 하이라이트 ----- */
+let speakToken = 0;
+function speakBoard(){
+  if(!window.speechSynthesis || !board.length) return;
+  stopSpeak();
+  const token = ++speakToken;
+  let i = 0;
+  function next(){
+    if(token!==speakToken || i>=board.length){ clearHl(); return; }
+    clearHl();
+    const el = document.getElementById('bc'+i);
+    if(el) el.classList.add('speaking');
+    const u = new SpeechSynthesisUtterance(board[i].text);
+    u.lang='ko-KR'; u.rate=0.75;
+    u.onend = ()=>{ i++; setTimeout(next, 250); };
+    speechSynthesis.speak(u);
+  }
+  next();
+}
+function stopSpeak(){ speakToken++; if(window.speechSynthesis) speechSynthesis.cancel(); clearHl(); }
+function clearHl(){ document.querySelectorAll('.bcard.speaking').forEach(e=>e.classList.remove('speaking')); }
+
+/* ----- 종료 ----- */
+function endGame(){
+  stopTimer(); stopSpeak();
+  state='end';
+  const mn = Math.min(...players.map(p=>p.pen));
+  const winners = players.filter(p=>p.pen===mn).map(p=>p.name).join(', ');
+  document.getElementById('game').style.display='none';
+  document.getElementById('over').style.display='block';
+  document.getElementById('winner').textContent = `🏆 ${winners}`;
+  document.getElementById('finalScores').innerHTML =
+    [...players].sort((a,b)=>a.pen-b.pen).map(p=>`<tr><td>${p.name}</td><td><b>벌점 ${p.pen}</b></td></tr>`).join('');
+}
+
+/* ----- 키보드 ----- */
+document.addEventListener('keydown', e=>{
+  if(e.code==='Space') e.preventDefault();
+  if(e.key==='Enter' || e.code==='Space'){
+    if(state==='setup'){ startGame(); return; }
+    if(state==='idle') flipNext();
+    else if(state==='special'){ const b=document.querySelector('.ctrl .btn.nx'); if(b) b.click(); }
+    else if(state==='judging') judge(true);
+  }
+  if(state==='judging'){
+    if(e.key==='o'||e.key==='O'||e.key==='ㅐ') judge(true);
+    if(e.key==='x'||e.key==='X'||e.key==='ㅌ') judge(false);
+  }
 });
-document.getElementById("startBtn").addEventListener("click",()=>init(false));
-document.getElementById("startDelayBtn").addEventListener("click",()=>init(true));
 </script>
 </body>
 </html>
