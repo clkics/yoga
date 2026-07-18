@@ -6,60 +6,44 @@
 <title>몸으로 한글 — 놀이</title>
 <style>
   :root{
-    --sky:#FFF4D6;         /* 따뜻한 크림-노랑 배경 */
-    --sky2:#FFE8B0;
-    --ink:#3A2E2A;
-    --ink-soft:#8A7A6E;
-    --coral:#FF7A59;       /* 아빠/주 액센트 */
-    --mint:#37C9A8;        /* 아이/성공 */
-    --grape:#7B6CF6;       /* 포인트 */
-    --sun:#FFC93C;         /* 별/보상 */
-    --paper:#FFFFFF;
-    --line:#F0E3C8;
+    --sky:#FFF4D6; --sky2:#FFE8B0;
+    --ink:#3A2E2A; --ink-soft:#8A7A6E;
+    --coral:#FF7A59; --mint:#37C9A8; --grape:#7B6CF6; --sun:#FFC93C;
+    --paper:#FFFFFF; --line:#F0E3C8;
     --shadow:0 8px 0 rgba(58,46,42,.12);
     --round:22px;
     --display:"Jua","Gaegu",-apple-system,sans-serif;
   }
-  @import url('https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
     -webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden}
-  body{
-    font-family:var(--display);color:var(--ink);
+  body{font-family:var(--display);color:var(--ink);
     background:linear-gradient(170deg,var(--sky) 0%,var(--sky2) 100%);
-    display:flex;align-items:center;justify-content:center;
-  }
+    display:flex;align-items:center;justify-content:center}
   #app{width:100%;height:100%;max-width:960px;position:relative}
-
   button{font-family:var(--display);cursor:pointer;border:none;background:none}
 
-  /* ══ 공통 화면 전환 ══ */
   .screen{position:absolute;inset:0;display:none;flex-direction:column}
   .screen.active{display:flex}
 
-  /* ══ 타이틀 ══ */
+  /* 타이틀 */
   #titleScreen{align-items:center;justify-content:center;gap:26px;padding:24px;text-align:center}
   .logo-body{font-size:clamp(2.6rem,9vw,4.4rem);color:var(--coral);line-height:1;
-    text-shadow:3px 3px 0 #fff, 6px 6px 0 rgba(255,122,89,.25)}
-  .logo-sub{font-size:1.05rem;color:var(--ink-soft);margin-top:-6px}
+    text-shadow:3px 3px 0 #fff,6px 6px 0 rgba(255,122,89,.25)}
+  .logo-sub{font-size:1.05rem;color:var(--ink-soft);margin-top:-4px}
   .mascot{font-size:5rem;animation:bob 2s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
-  .start-btns{display:flex;flex-direction:column;gap:14px;width:min(340px,80vw)}
-  .big-start{
-    font-size:1.5rem;color:#fff;padding:18px;border-radius:var(--round);
-    box-shadow:var(--shadow);transition:transform .12s;
-  }
+  .big-start{font-size:1.5rem;color:#fff;padding:18px 60px;border-radius:var(--round);
+    box-shadow:var(--shadow);background:var(--coral);transition:transform .12s}
   .big-start:active{transform:translateY(3px);box-shadow:0 4px 0 rgba(58,46,42,.12)}
-  .bs-solo{background:var(--mint)}
-  .bs-duo{background:var(--coral)}
   .note{font-size:.82rem;color:var(--ink-soft);line-height:1.6;max-width:360px}
 
-  /* ══ 정복지도(스테이지 선택) ══ */
+  /* 글자 지도 */
   #mapScreen{padding:18px}
   .map-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
   .icon-btn{width:44px;height:44px;border-radius:14px;background:var(--paper);
     box-shadow:var(--shadow);font-size:1.3rem;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-  .map-title{font-size:1.3rem;color:var(--ink)}
+  .map-title{font-size:1.3rem}
   .star-count{margin-left:auto;background:var(--paper);border-radius:14px;padding:8px 16px;
     box-shadow:var(--shadow);font-size:1.1rem;color:var(--sun)}
   .star-count b{color:var(--ink)}
@@ -67,26 +51,21 @@
   .stage-group{margin-bottom:18px}
   .stage-label{font-size:1rem;color:var(--ink-soft);margin:0 0 10px 4px;display:flex;align-items:center;gap:8px}
   .stage-label .badge{background:var(--grape);color:#fff;font-size:.72rem;padding:2px 10px;border-radius:999px}
-  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:12px}
-  .tile{
-    aspect-ratio:1;border-radius:18px;background:var(--paper);box-shadow:var(--shadow);
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:12px}
+  .tile{aspect-ratio:1;border-radius:18px;background:var(--paper);box-shadow:var(--shadow);
     display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
-    font-size:2.1rem;color:var(--ink);transition:transform .12s;
-  }
+    font-size:2rem;color:var(--ink);transition:transform .12s}
   .tile:active{transform:scale(.94)}
-  .tile.duo{background:linear-gradient(145deg,#fff 60%,#FFE0D6)}
-  .tile .ministar{position:absolute;bottom:5px;font-size:.72rem;color:var(--sun);letter-spacing:-2px}
-  .tile.locked{opacity:.4;filter:grayscale(.6)}
-  .tile.locked::after{content:"🔒";position:absolute;font-size:1.1rem;bottom:5px;right:7px}
+  .tile.duo{background:linear-gradient(145deg,#fff 55%,#FFE0D6)}
+  .tile.duo::before{content:"👨‍👧";position:absolute;top:4px;right:6px;font-size:.75rem}
+  .tile .ministar{position:absolute;bottom:5px;font-size:.7rem;color:var(--sun);letter-spacing:-2px}
   .tile.cleared{outline:3px solid var(--mint);outline-offset:-3px}
 
-  /* ══ 게임 플레이 ══ */
+  /* 게임 */
   #playScreen{background:#1a1420}
   #camWrap{position:absolute;inset:0;overflow:hidden}
   video{position:absolute;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
   #poseCanvas{position:absolute;width:100%;height:100%;transform:scaleX(-1)}
-
-  /* 상단 바 */
   #playTop{position:absolute;top:0;left:0;right:0;padding:12px 16px;z-index:6;
     display:flex;align-items:center;gap:10px;
     background:linear-gradient(180deg,rgba(26,20,32,.6),transparent)}
@@ -96,37 +75,33 @@
   #comboBox{background:rgba(255,201,60,.95);color:var(--ink);border-radius:14px;padding:6px 12px;
     font-size:.95rem;display:none}
 
-  /* 시범 애니메이션 오버레이 */
-  #demoOverlay{position:absolute;inset:0;z-index:7;background:rgba(26,20,32,.82);
+  #demoOverlay{position:absolute;inset:0;z-index:7;background:rgba(26,20,32,.84);
     display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-  #demoCanvas{width:min(70vw,340px);height:auto;background:rgba(255,255,255,.06);border-radius:24px}
-  #demoText{color:#fff;font-size:1.3rem;text-align:center;padding:0 20px;line-height:1.4}
+  #duoBanner{display:none;background:var(--coral);color:#fff;font-size:1.35rem;
+    padding:12px 28px;border-radius:999px;box-shadow:var(--shadow);animation:bob 1.6s ease-in-out infinite}
   #demoSpeak{font-size:3rem;color:var(--sun);min-height:3.4rem}
+  #demoCanvas{width:min(70vw,340px);height:auto;background:rgba(255,255,255,.06);border-radius:24px}
+  #demoText{color:#fff;font-size:1.25rem;text-align:center;padding:0 20px;line-height:1.4}
   #demoBtn{margin-top:6px;background:var(--mint);color:#fff;font-size:1.2rem;padding:14px 36px;
     border-radius:var(--round);box-shadow:var(--shadow)}
 
-  /* 근접도 게이지 */
   #gaugeWrap{position:absolute;bottom:120px;left:50%;transform:translateX(-50%);z-index:6;
     width:min(74vw,320px);display:none}
   #gaugeTrack{height:22px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;
     border:2px solid rgba(255,255,255,.5)}
-  #gaugeFill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--coral),var(--mint));
-    transition:width .12s}
+  #gaugeFill{height:100%;width:0%;border-radius:999px;
+    background:linear-gradient(90deg,var(--coral),var(--mint));transition:width .12s}
   #gaugeLabel{text-align:center;color:#fff;font-size:.95rem;margin-top:6px;text-shadow:1px 1px 2px rgba(0,0,0,.6)}
 
-  /* 하단 조작 */
   #playBottom{position:absolute;bottom:0;left:0;right:0;padding:16px;z-index:6;
     display:flex;gap:12px;justify-content:center;
     background:linear-gradient(0deg,rgba(26,20,32,.6),transparent)}
   .play-btn{background:rgba(255,255,255,.92);color:var(--ink);font-size:1.05rem;
     padding:13px 22px;border-radius:16px;box-shadow:var(--shadow)}
   .play-btn.primary{background:var(--sun)}
-
-  /* 상태 안내 (사람 감지 등) */
   #statusChip{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:6;
     background:rgba(0,0,0,.55);color:#fff;padding:8px 18px;border-radius:999px;font-size:.9rem;display:none}
 
-  /* ══ 성공 이펙트 ══ */
   #winOverlay{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;
     flex-direction:column;gap:10px;background:rgba(26,20,32,.5);backdrop-filter:blur(2px)}
   #winGlyph{font-size:9rem;color:#fff;text-shadow:0 0 30px var(--sun),4px 4px 0 var(--coral);
@@ -142,34 +117,27 @@
   .confetti{position:absolute;top:-20px;font-size:1.6rem;pointer-events:none;animation:fall linear forwards}
   @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.2}}
 
-  /* 로딩 */
   #loading{position:absolute;inset:0;z-index:20;background:var(--sky);display:none;
     flex-direction:column;align-items:center;justify-content:center;gap:18px}
   #loading .mascot{font-size:4rem}
   #loadingText{font-size:1.2rem;color:var(--ink-soft)}
   #errText{color:var(--coral);font-size:.95rem;max-width:80vw;text-align:center;line-height:1.6;display:none}
-
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- 타이틀 -->
   <section class="screen active" id="titleScreen">
     <div class="mascot">🧍</div>
     <div>
       <div class="logo-body">몸으로 한글</div>
       <div class="logo-sub">내 몸으로 글자를 만들어요</div>
     </div>
-    <div class="start-btns">
-      <button class="big-start bs-solo" data-mode="solo">🧒 혼자 하기</button>
-      <button class="big-start bs-duo" data-mode="duo">👨‍👧 아빠랑 하기</button>
-    </div>
-    <p class="note">카메라로 몸동작을 봐요. 사진은 저장되지 않고 이 기기 안에서만 쓰여요.<br>넓은 곳에서 온몸이 보이게 서주세요.</p>
+    <button class="big-start" id="startBtn">시작하기</button>
+    <p class="note">ㄱ부터 ㅣ까지 차례대로! 두 사람이 필요한 글자는 아빠와 함께해요.<br>카메라 영상은 저장되지 않아요. 넓은 곳에서 온몸이 보이게 서주세요.</p>
   </section>
 
-  <!-- 정복지도 -->
   <section class="screen" id="mapScreen">
     <div class="map-head">
       <button class="icon-btn" id="mapBack">←</button>
@@ -179,160 +147,146 @@
     <div class="map-scroll" id="mapScroll"></div>
   </section>
 
-  <!-- 게임 -->
   <section class="screen" id="playScreen">
     <div id="camWrap">
       <video id="video" playsinline autoplay muted></video>
       <canvas id="poseCanvas"></canvas>
     </div>
-
     <div id="playTop">
       <button class="icon-btn" id="playBack">←</button>
-      <div id="targetGlyph">ㅏ</div>
+      <div id="targetGlyph">ㄱ</div>
       <div id="playHint">몸으로 만들어봐요!</div>
       <div id="comboBox">🔥 <span id="comboNum">0</span></div>
     </div>
-
     <div id="statusChip"></div>
-
     <div id="gaugeWrap">
       <div id="gaugeTrack"><div id="gaugeFill"></div></div>
       <div id="gaugeLabel">비슷해지고 있어요…</div>
     </div>
-
     <div id="playBottom">
       <button class="play-btn" id="demoAgainBtn">👀 다시 보기</button>
       <button class="play-btn primary" id="skipBtn">건너뛰기</button>
     </div>
 
-    <!-- 시범 -->
     <div id="demoOverlay">
-      <div id="demoSpeak">아</div>
+      <div id="duoBanner">👨‍👧 아빠와 함께해요!</div>
+      <div id="demoSpeak">그</div>
       <canvas id="demoCanvas" width="340" height="360"></canvas>
       <div id="demoText">이렇게 만들어요!</div>
       <button id="demoBtn">해볼래요! →</button>
     </div>
 
-    <!-- 성공 -->
     <div id="winOverlay">
-      <div id="winGlyph">ㅏ</div>
-      <div id="winSpeak">아</div>
+      <div id="winGlyph">ㄱ</div>
+      <div id="winSpeak">그</div>
       <div id="winStars"></div>
       <div id="winRecord"></div>
       <button id="winNext">다음 →</button>
     </div>
   </section>
 
-  <!-- 로딩 -->
   <div id="loading">
     <div class="mascot">🧍</div>
     <div id="loadingText">카메라 준비 중…</div>
     <div id="errText"></div>
   </div>
-
 </div>
 
 <script type="module">
 import { PoseLandmarker, FilesetResolver }
   from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-/* ══════════════════════════════════════════
-   1. 자모 데이터 (확정 프리셋 v5 기반)
-   각 글자: 발음, 모드(solo/duo), 목표 관절각, 시범 캡션
-   판정은 '관절 각도'만 사용 → 몸집 무관
-   ══════════════════════════════════════════ */
-
-// 각도 규약(시범 렌더): 팔다리=아래 0°,오른쪽+90°,위180° / 몸통·머리=위 0°
+/* ══ 1. 자모 데이터 — 확정 프리셋(뷰어 v5) 전체 ══ */
 const BASE_FIG={rootH:92,torso:0,head:0,headUp:0,aL:[-7,-7],aR:[7,7],lL:[-4,-4],lR:[4,4],rot:0};
 
-// 판정용 목표각 정의 헬퍼: 어깨-팔 벌림각(몸통 기준), 팔꿈치 굽힘, 다리 벌림 등 핵심만 검사
-// checks: [{joint, target, tol}] — joint 계산은 evaluatePose에서
 const LETTERS={
- // ─ S1 솔로 단모음 ─
- "ㅣ":{sound:"이",mode:"solo",fig:{...BASE_FIG},
-   cap:"차렷! 곧게 서요",
-   checks:[{k:"armL",t:0,tol:28},{k:"armR",t:0,tol:28},{k:"legGap",t:12,tol:16}]},
- "ㅏ":{sound:"아",mode:"solo",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},
-   cap:"오른팔을 옆으로!",
-   checks:[{k:"armR",t:90,tol:32},{k:"armL",t:0,tol:32}]},
- "ㅓ":{sound:"어",mode:"solo",fig:{rootH:92,torso:0,head:0,aL:[-90,-90],aR:[7,7],lL:[-4,-4],lR:[4,4]},
-   cap:"왼팔을 옆으로!",
-   checks:[{k:"armL",t:90,tol:32},{k:"armR",t:0,tol:32}]},
- "ㅡ":{sound:"으",mode:"solo",fig:{...BASE_FIG,rot:-88},
-   cap:"바닥에 누워요",
-   checks:[{k:"lie",t:1,tol:0}]},
- // ─ S2 솔로 자음 ─
- "ㅅ":{sound:"스",mode:"solo",fig:{rootH:88,torso:0,head:0,aL:[-12,-12],aR:[12,12],lL:[-25,-25],lR:[25,25]},
-   cap:"다리를 쫙 벌려요",
-   checks:[{k:"legGap",t:52,tol:22},{k:"armL",t:12,tol:30},{k:"armR",t:12,tol:30}]},
- "ㄱ":{sound:"그",mode:"solo",fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},
-   cap:"허리를 앞으로 숙여요",
-   checks:[{k:"bend",t:1,tol:0}]},
- "ㄴ":{sound:"느",mode:"solo",fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[82,82],lR:[86,86]},
-   cap:"앉아서 다리를 앞으로",
-   checks:[{k:"sit",t:1,tol:0}]},
- "ㅇ":{sound:"으",mode:"solo",fig:{rootH:78,torso:0,head:0,aL:[-24,-6],aR:[24,6],lL:[-24,16],lR:[24,-16]},
-   cap:"팔로 동그라미!",
-   checks:[{k:"armRound",t:1,tol:0}]},
- // ─ S3 듀오 글자 (아빠+아이) ─
- "가":{sound:"가",mode:"duo",
-   figs:[{who:"아빠",fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},x:-80,c:"coral"},
-         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
-   cap:"아빠는 ㄱ, 아이는 ㅏ!",
-   duoChecks:{p0:[{k:"bend",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
- "나":{sound:"나",mode:"duo",
-   figs:[{who:"아빠",fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[82,82],lR:[86,86]},x:-80,c:"coral"},
-         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
-   cap:"아빠는 ㄴ, 아이는 ㅏ!",
-   duoChecks:{p0:[{k:"sit",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
- "사":{sound:"사",mode:"duo",
-   figs:[{who:"아빠",fig:{rootH:88,torso:0,head:0,aL:[-12,-12],aR:[12,12],lL:[-25,-25],lR:[25,25]},x:-80,c:"coral"},
-         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
-   cap:"아빠는 ㅅ, 아이는 ㅏ!",
-   duoChecks:{p0:[{k:"legGap",t:52,tol:24}],p1:[{k:"armR",t:90,tol:36}]}},
- "아":{sound:"아",mode:"duo",
-   figs:[{who:"아빠",fig:{rootH:78,torso:0,head:0,aL:[-24,-6],aR:[24,6],lL:[-24,16],lR:[24,-16]},x:-80,c:"coral"},
-         {who:"아이",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},x:80,c:"mint"}],
-   cap:"아빠는 ㅇ, 아이는 ㅏ!",
-   duoChecks:{p0:[{k:"armRound",t:1,tol:0}],p1:[{k:"armR",t:90,tol:36}]}},
+ /* 자음 */
+ "ㄱ":{name:"기역",sound:"그",fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},
+   cap:"허리를 앞으로 푹 숙여요",checks:[["bend"]]},
+ "ㄴ":{name:"니은",sound:"느",fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[82,82],lR:[86,86]},
+   cap:"앉아서 다리를 앞으로 쭉",checks:[["sit"]]},
+ "ㄷ":{name:"디귿",sound:"드",fig:{rootH:16,torso:0,head:78,aL:[86,86],aR:[92,92],lL:[82,82],lR:[86,86]},
+   cap:"앉아서 양팔 들고 고개 숙여요",checks:[["sit"],["armsRaised"]]},
+ "ㄹ":{name:"리을",sound:"르",fig:{rootH:38,torso:22,head:-6,aL:[90,90],aR:[90,90],lL:[64,-96],lR:[68,-100]},
+   cap:"무릎 꿇고 엉덩이 살짝 들고 팔은 앞으로",checks:[["kneesLow"],["armsRaised"]]},
+ "ㅁ":{name:"미음",sound:"므",duo:[
+    {fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[94,94],lL:[-3,-3],lR:[3,3]},x:-88,c:"coral"},
+    {fig:{rootH:16,torso:0,head:0,aL:[-8,-8],aR:[8,8],lL:[-82,-82],lR:[-86,-86]},x:88,c:"mint"}],
+   cap:"아빠는 ㄱ, 아이는 ㄴ! 마주보고 네모",duoChecks:{p0:[["bend"]],p1:[["sit"]]}},
+ "ㅂ":{name:"비읍",sound:"브",duo:[
+    {fig:{rootH:92,torso:88,head:8,aL:[90,90],aR:[-165,-165],lL:[-3,-3],lR:[3,3]},x:-88,c:"coral"},
+    {fig:{rootH:16,torso:0,head:0,aL:[165,165],aR:[8,8],lL:[-82,-82],lR:[-86,-86]},x:88,c:"mint"}],
+   cap:"ㅁ에서 한 손씩 하늘로!",duoChecks:{p0:[["bend"]],p1:[["sit"],["wristHighAny"]]}},
+ "ㅅ":{name:"시옷",sound:"스",fig:{rootH:88,torso:0,head:0,aL:[-12,-12],aR:[12,12],lL:[-25,-25],lR:[25,25]},
+   cap:"다리를 쫙 벌려요",checks:[["legGapWide"]]},
+ "ㅇ":{name:"이응",sound:"응",fig:{rootH:78,torso:0,head:0,aL:[-24,-6],aR:[24,6],lL:[-24,16],lR:[24,-16]},
+   cap:"발 모으고 무릎을 살짝 굽혀 벌려요",checks:[["legDiamond"]]},
+ "ㅈ":{name:"지읒",sound:"즈",fig:{rootH:88,torso:0,head:72,aL:[-90,-90],aR:[90,90],lL:[-25,-25],lR:[25,25]},
+   cap:"양팔 벌리고 다리 벌리고 고개 숙여요",checks:[["armT"],["legGapWide"],["headLow"]]},
+ "ㅊ":{name:"치읓",sound:"츠",fig:{rootH:88,torso:0,head:0,headUp:10,aL:[-90,-90],aR:[90,90],lL:[-25,-25],lR:[25,25]},
+   cap:"ㅈ에서 고개를 번쩍 들어요",checks:[["armT"],["legGapWide"],["headHigh"]]},
+ "ㅋ":{name:"키읔",sound:"크",fig:{rootH:92,torso:88,head:8,aL:[50,50],aR:[92,92],lL:[-3,-3],lR:[3,3]},
+   cap:"ㄱ에서 한 팔을 아래로 비스듬히",checks:[["bend"],["wristsSplit"]]},
+ "ㅌ":{name:"티읕",sound:"트",fig:{rootH:16,torso:0,head:78,aL:[68,96],aR:[92,92],lL:[82,82],lR:[86,86]},
+   cap:"ㄷ에서 한 팔꿈치를 가슴에 콕",checks:[["sit"],["wristChest"]]},
+ "ㅍ":{name:"피읖",sound:"프",duo:[
+    {fig:{rootH:20,torso:0,head:0,aL:[-90,-90],aR:[90,90],lL:[-52,52],lR:[86,86]},x:-72,c:"coral"},
+    {fig:{rootH:20,torso:0,head:0,aL:[-90,-90],aR:[90,90],lL:[-86,-86],lR:[52,-52]},x:72,c:"mint"}],
+   cap:"둘이 앉아 양팔 벌리고, 가까운 다리는 쭉!",duoChecks:{p0:[["seatedLow"],["armT"]],p1:[["seatedLow"],["armT"]]}},
+ "ㅎ":{name:"히읗",sound:"흐",fig:{rootH:78,torso:0,head:0,headUp:10,aL:[-90,-90],aR:[90,90],lL:[-24,16],lR:[24,-16]},
+   cap:"ㅇ 다리에 양팔 벌리고 고개 들어요",checks:[["legDiamond"],["armT"]]},
+ /* 모음 */
+ "ㅏ":{name:"아",sound:"아",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-4,-4],lR:[4,4]},
+   cap:"오른팔을 옆으로!",checks:[["armR90"],["armLdown"]]},
+ "ㅑ":{name:"야",sound:"야",fig:{rootH:92,torso:0,head:0,aL:[-7,-7],aR:[90,90],lL:[-2,-2],lR:[52,52]},
+   cap:"ㅏ에서 같은 쪽 다리도 들어요",checks:[["armR90"],["legLiftR"]]},
+ "ㅓ":{name:"어",sound:"어",fig:{rootH:92,torso:0,head:0,aL:[-90,-90],aR:[7,7],lL:[-4,-4],lR:[4,4]},
+   cap:"왼팔을 옆으로!",checks:[["armL90"],["armRdown"]]},
+ "ㅕ":{name:"여",sound:"여",fig:{rootH:92,torso:0,head:0,aL:[-90,-90],aR:[7,7],lL:[-52,-52],lR:[2,2]},
+   cap:"ㅓ에서 같은 쪽 다리도 들어요",checks:[["armL90"],["legLiftL"]]},
+ "ㅗ":{name:"오",sound:"오",fig:{rootH:26,torso:0,head:0,aL:[-176,-176],aR:[176,176],lL:[62,-62],lR:[-62,62]},
+   cap:"책상다리로 앉아 두 손 모아 하늘로",checks:[["seatedLow"],["wristsTogetherUp"]]},
+ "ㅛ":{name:"요",sound:"요",fig:{rootH:26,torso:0,head:0,aL:[-157,-157],aR:[157,157],lL:[62,-62],lR:[-62,62]},
+   cap:"앉아서 두 팔을 나란히 위로",checks:[["seatedLow"],["wristsApartUp"]]},
+ "ㅜ":{name:"우",sound:"우",fig:{rootH:92,torso:0,head:0,aL:[-90,-90],aR:[90,90],lL:[-2,-2],lR:[2,2]},
+   cap:"양팔 벌리고 다리는 모아요",checks:[["armT"],["legTogether"]]},
+ "ㅠ":{name:"유",sound:"유",fig:{rootH:88,torso:0,head:0,aL:[-90,-90],aR:[90,90],lL:[-22,-22],lR:[22,22]},
+   cap:"양팔 벌리고 다리도 벌려요",checks:[["armT"],["legGapWide"]]},
+ "ㅡ":{name:"으",sound:"으",fig:{...BASE_FIG,rot:-88},
+   cap:"바닥에 곧게 누워요",checks:[["lie"]]},
+ "ㅣ":{name:"이",sound:"이",fig:{...BASE_FIG},
+   cap:"차렷! 곧게 서요",checks:[["armsDown"],["legTogether"]]},
 };
 
-const STAGES=[
- {id:"S1",label:"혼자 단모음",badge:"1단계",mode:"solo",list:["ㅣ","ㅏ","ㅓ","ㅡ"]},
- {id:"S2",label:"혼자 자음",badge:"2단계",mode:"solo",list:["ㅅ","ㄱ","ㄴ","ㅇ"]},
- {id:"S3",label:"아빠랑 글자",badge:"3단계",mode:"duo",list:["가","나","사","아"]},
+const GROUPS=[
+ {label:"자음",badge:"ㄱ~ㅎ",list:["ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"]},
+ {label:"모음",badge:"ㅏ~ㅣ",list:["ㅏ","ㅑ","ㅓ","ㅕ","ㅗ","ㅛ","ㅜ","ㅠ","ㅡ","ㅣ"]},
 ];
+const FULL_ORDER=[...GROUPS[0].list,...GROUPS[1].list];
 
-/* ══════════════════════════════════════════
-   2. 저장 (별/기록) — localStorage 불가 환경 대비 메모리 폴백
-   ══════════════════════════════════════════ */
+/* ══ 2. 저장 ══ */
 const store={
   data:{stars:{},best:{combo:0}},
-  load(){ try{const r=localStorage.getItem("hangul_body");if(r)this.data=JSON.parse(r);}catch(e){} },
-  save(){ try{localStorage.setItem("hangul_body",JSON.stringify(this.data));}catch(e){} },
+  load(){try{const r=localStorage.getItem("hangul_body");if(r)this.data=JSON.parse(r);}catch(e){}},
+  save(){try{localStorage.setItem("hangul_body",JSON.stringify(this.data));}catch(e){}},
   starOf(g){return this.data.stars[g]||0;},
   setStar(g,n){if(n>(this.data.stars[g]||0)){this.data.stars[g]=n;this.save();}},
   total(){return Object.values(this.data.stars).reduce((s,v)=>s+v,0);},
 };
 store.load();
 
-/* ══════════════════════════════════════════
-   3. 음성
-   ══════════════════════════════════════════ */
+/* ══ 3. 음성 ══ */
 function speak(text,rate=1){
-  try{ speechSynthesis.cancel();
+  try{speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=rate;
     speechSynthesis.speak(u);
   }catch(e){}
 }
 
-/* ══════════════════════════════════════════
-   4. 시범 스틱피겨 렌더 (뷰어 로직 이식)
-   ══════════════════════════════════════════ */
+/* ══ 4. 시범 렌더 ══ */
 const DIM={torso:70,neck:9,headR:15,uarm:36,farm:33,thigh:44,shin:40};
 const rad=d=>d*Math.PI/180;
-function figColor(c){return c==="coral"?"#FF7A59":c==="mint"?"#37C9A8":"#FF7A59";}
-
+const figColor=c=>c==="coral"?"#FF7A59":c==="mint"?"#37C9A8":"#FFC93C";
 function drawFig(ctx,pose,rootX,ground,color){
   ctx.save();
   const rot=pose.rot||0;
@@ -351,11 +305,13 @@ function drawFig(ctx,pose,rootX,ground,color){
   ctx.beginPath();ctx.arc(hx,hy,DIM.headR,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
-function lerp(a,b,t){return a+(b-a)*t;}
-function lerpPose(a,b,t){const o={};["rootH","torso","head","headUp","rot"].forEach(k=>o[k]=lerp(a[k]||0,b[k]||0,t));
+const lerp=(a,b,t)=>a+(b-a)*t;
+function lerpPose(a,b,t){const o={};
+  ["rootH","torso","head","headUp","rot"].forEach(k=>o[k]=lerp(a[k]||0,b[k]||0,t));
   ["aL","aR","lL","lR"].forEach(k=>o[k]=[lerp(a[k][0],b[k][0],t),lerp(a[k][1],b[k][1],t)]);return o;}
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 
+const demoCanvas=document.getElementById("demoCanvas");
 let demoAnim=null;
 function playDemo(letter){
   const dctx=demoCanvas.getContext("2d");
@@ -366,75 +322,81 @@ function playDemo(letter){
   function frame(now){
     let t=(now-t0)/DUR;if(t>1)t=1;const e=ease(t);
     dctx.clearRect(0,0,W,H);
-    if(def.mode==="duo"){
-      def.figs.forEach(f=>drawFig(dctx,lerpPose(BASE_FIG,{...BASE_FIG,...f.fig},e),W/2+f.x*0.9,ground,figColor(f.c)));
+    if(def.duo){
+      def.duo.forEach(f=>drawFig(dctx,lerpPose(BASE_FIG,{...BASE_FIG,...f.fig},e),W/2+f.x*0.9,ground,figColor(f.c)));
     }else{
       drawFig(dctx,lerpPose(BASE_FIG,{...BASE_FIG,...def.fig},e),W/2,ground,"#FFC93C");
     }
     if(t<1)demoAnim=requestAnimationFrame(frame);
-    else{ demoAnim=requestAnimationFrame(()=>{setTimeout(()=>playDemo(letter),700);}); }
+    else demoAnim=requestAnimationFrame(()=>setTimeout(()=>playDemo(letter),700));
   }
   demoAnim=requestAnimationFrame(frame);
 }
 
-/* ══════════════════════════════════════════
-   5. 포즈 판정 (실제 카메라)
-   관절 각도만 사용 → 몸집 무관. 각 check의 k별 계산.
-   ══════════════════════════════════════════ */
-function ang(ax,ay,bx,by){ // 벡터 b-a 가 수직(위)기준 시계각? 여기선 팔 벌림용: 몸통 대비
-  return Math.atan2(bx-ax,-(by-ay))*180/Math.PI; // 위=0, 오른쪽+90
-}
+/* ══ 5. 포즈 판정 — 완화판 ══
+   ramp: 부드러운 0→1. 모든 기준을 v1보다 크게 관대화 */
+const clamp01=v=>Math.max(0,Math.min(1,v));
+const ramp=(v,lo,hi)=>clamp01((v-lo)/(hi-lo));
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function armAng(sh,wr){return Math.abs(Math.atan2(wr.x-sh.x,wr.y-sh.y)*180/Math.PI);} // 아래0,옆90,위180
 
-// 한 사람(landmarks 33)에 대해 각 check 통과율(0~1) 평균 반환
 function scorePerson(lm,checks){
-  if(!lm)return 0;
+  if(!lm||!lm[0])return 0;
+  const shY=(lm[11].y+lm[12].y)/2, shX=(lm[11].x+lm[12].x)/2;
+  const hipY=(lm[23].y+lm[24].y)/2, hipX=(lm[23].x+lm[24].x)/2;
+  const kneeY=(lm[25].y+lm[26].y)/2, ankY=(lm[27].y+lm[28].y)/2;
+  const T=(dist(lm[11],lm[23])+dist(lm[12],lm[24]))/2 || 0.1; // 몸통 길이(정규화 기준)
+  const noseY=lm[0].y;
+  const wL=lm[15],wR=lm[16];
+  const aL=armAng(lm[11],wL), aR=armAng(lm[12],wR);
+  const legGap=dist(lm[27],lm[28])/T, kneeGap=dist(lm[25],lm[26])/T;
+
+  const K={
+    armR90:()=> 1-ramp(Math.abs(aR-90),50,100),
+    armL90:()=> 1-ramp(Math.abs(aL-90),50,100),
+    armRdown:()=> 1-ramp(aR,55,110),
+    armLdown:()=> 1-ramp(aL,55,110),
+    armsDown:()=> (1-ramp(aL,55,110))*.5+(1-ramp(aR,55,110))*.5,
+    armT:()=> (1-ramp(Math.abs(aL-90),50,100))*.5+(1-ramp(Math.abs(aR-90),50,100))*.5,
+    legGapWide:()=> ramp(legGap,0.28,0.6),
+    legTogether:()=> 1-ramp(legGap,0.35,0.75),
+    legDiamond:()=> ramp(kneeGap-legGap,0.02,0.22)*.6+(1-ramp(legGap,0.4,0.8))*.4,
+    bend:()=>{ const tilt=Math.abs(shX-hipX)/T; const level=(hipY-shY)/T;
+      return Math.max(ramp(tilt,0.12,0.42), 1-ramp(level,0.25,0.8)); },
+    sit:()=>{ const a=1-ramp(Math.abs(hipY-kneeY)/T,0.3,0.85); const b=1-ramp((ankY-hipY)/T,0.55,1.2);
+      return a*.5+b*.5; },
+    seatedLow:()=> 1-ramp((ankY-hipY)/T,0.45,1.0),
+    kneesLow:()=> 1-ramp(Math.abs(kneeY-ankY)/T,0.28,0.7),
+    lie:()=>{ const dx=Math.abs(shX-hipX), dy=Math.abs(shY-hipY); return ramp(dx/(dy+0.01),0.8,1.5); },
+    armsRaised:()=>{ const h=(hipY-(wL.y+wR.y)/2)/T; return ramp(h,0.25,0.75); },
+    wristHighAny:()=>{ const v=Math.max((shY-wL.y),(shY-wR.y))/T; return ramp(v,0.05,0.4); },
+    headLow:()=> ramp((noseY-shY)/T,-0.45,-0.08),
+    headHigh:()=> 1-ramp((noseY-shY)/T,-0.45,-0.15),
+    wristChest:()=>{ const chest={x:shX,y:(shY+hipY)/2};
+      const d=Math.min(dist(wL,chest),dist(wR,chest))/T; return 1-ramp(d,0.4,0.95); },
+    wristsSplit:()=> ramp(Math.abs(wL.y-wR.y)/T,0.18,0.55),
+    wristsTogetherUp:()=>{ const up=ramp((noseY-Math.max(wL.y,wR.y))/T,-0.1,0.2);
+      const close=1-ramp(dist(wL,wR)/T,0.5,1.1); return up*.55+close*.45; },
+    wristsApartUp:()=>{ const up=ramp((noseY-Math.max(wL.y,wR.y))/T,-0.1,0.2);
+      const apart=ramp(dist(wL,wR)/T,0.3,0.7); return up*.55+apart*.45; },
+    legLiftR:()=> ramp((lm[27].y-lm[28].y)/T,0.08,0.4),
+    legLiftL:()=> ramp((lm[28].y-lm[27].y)/T,0.08,0.4),
+  };
   let sum=0,cnt=0;
-  const torsoLen=(dist(lm[11],lm[23])+dist(lm[12],lm[24]))/2 || 0.1;
-  for(const c of checks){
-    let pass=0;
-    if(c.k==="armR"){ // 오른팔(인물기준 오른쪽=lm 12,14,16) 벌림각(몸통 대비)
-      const a=ang(lm[12].x,lm[12].y,lm[16].x,lm[16].y); // 어깨→손목
-      pass=within(Math.abs(a),c.t,c.tol);
-    }else if(c.k==="armL"){
-      const a=ang(lm[11].x,lm[11].y,lm[15].x,lm[15].y);
-      pass=within(Math.abs(a),c.t,c.tol);
-    }else if(c.k==="legGap"){
-      const gap=dist(lm[27],lm[28])/torsoLen*30; // 발목 간격 정규화
-      pass=within(gap,c.t,c.tol);
-    }else if(c.k==="bend"){ // 상체 숙임: 어깨가 골반보다 앞/아래로
-      const sh=(lm[11].y+lm[12].y)/2, hip=(lm[23].y+lm[24].y)/2;
-      const horiz=Math.abs((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2)/torsoLen;
-      pass=(sh>hip-0.05 && horiz>0.25)?1:0; // 어깨 내려오고 몸통 기울어짐
-    }else if(c.k==="sit"){ // 앉기: 골반이 무릎높이 근처, 무릎 앞으로
-      const hip=(lm[23].y+lm[24].y)/2, kn=(lm[25].y+lm[26].y)/2, an=(lm[27].y+lm[28].y)/2;
-      pass=(Math.abs(hip-kn)<0.18 && kn<an+0.05)?1:0;
-    }else if(c.k==="lie"){ // 눕기: 어깨-골반이 수평
-      const dx=Math.abs((lm[11].x+lm[12].x)/2-(lm[23].x+lm[24].x)/2);
-      const dy=Math.abs((lm[11].y+lm[12].y)/2-(lm[23].y+lm[24].y)/2);
-      pass=(dx>dy*1.3)?1:0;
-    }else if(c.k==="armRound"){ // 팔로 원: 양 손목이 머리 위 근처에서 가까움
-      const wristClose=dist(lm[15],lm[16])<torsoLen*0.9;
-      const up=(lm[15].y<lm[11].y && lm[16].y<lm[12].y);
-      pass=(wristClose&&up)?1:0;
-    }
-    sum+=pass;cnt++;
-  }
+  for(const [kind] of checks){ if(K[kind]){sum+=K[kind]();cnt++;} }
   return cnt?sum/cnt:0;
 }
-function within(v,t,tol){ const d=Math.abs(v-t); return d<=tol?1:Math.max(0,1-(d-tol)/(tol*1.5)); }
 
-/* ══════════════════════════════════════════
-   6. 게임 상태 & 루프
-   ══════════════════════════════════════════ */
+/* ══ 6. 게임 루프 ══ */
 const video=document.getElementById("video");
 const poseCanvas=document.getElementById("poseCanvas");
 const pctx=poseCanvas.getContext("2d");
-const demoCanvas=document.getElementById("demoCanvas");
+let landmarker=null,camStream=null,rafId=null,lastVideoTime=-1;
+let queue=[],qIndex=0,currentLetter=null;
+let holdStart=0,combo=0,roundStartTime=0,waiting=true;
 
-let landmarker=null, camStream=null, rafId=null, lastVideoTime=-1;
-let mode="solo", queue=[], qIndex=0, currentLetter=null;
-let holdStart=0, combo=0, poseReady=false, roundStartTime=0, waiting=false;
+const THRESH=0.55;   // v1: 0.75 → 완화
+const HOLD_SEC=0.8;  // v1: 1.5초 → 완화
 
 const CONN=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],
   [23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[28,30],[30,32],[0,11],[0,12]];
@@ -455,9 +417,9 @@ async function ensureCameraAndModel(){
       landmarker=await PoseLandmarker.createFromOptions(vision,{
         baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
         runningMode:"VIDEO",numPoses:2,
-        minPoseDetectionConfidence:0.4,minPosePresenceConfidence:0.4,minTrackingConfidence:0.4});
+        minPoseDetectionConfidence:0.35,minPosePresenceConfidence:0.35,minTrackingConfidence:0.35});
     }
-    speak(""); // 음성 워밍업
+    speak("");
     loading.style.display="none";
     return true;
   }catch(e){
@@ -467,7 +429,6 @@ async function ensureCameraAndModel(){
     return false;
   }
 }
-
 function resizeCanvas(){poseCanvas.width=video.videoWidth;poseCanvas.height=video.videoHeight;}
 
 function loop(){
@@ -482,7 +443,6 @@ function loop(){
   drawSkeleton(people);
   judge(people);
 }
-
 function drawSkeleton(people){
   pctx.clearRect(0,0,poseCanvas.width,poseCanvas.height);
   const W=poseCanvas.width,H=poseCanvas.height;
@@ -498,93 +458,76 @@ function drawSkeleton(people){
 
 function judge(people){
   const def=LETTERS[currentLetter];
-  let score=0, need=2;
-  if(def.mode==="solo"){
-    need=1;
-    if(people.length<1){ setStatus("온몸이 보이게 서주세요 🧍"); resetHold(); return; }
-    score=scorePerson(people[0],def.checks);
-  }else{
-    if(people.length<2){ setStatus("두 사람이 나란히 서주세요 👨‍👧"); resetHold(); return; }
+  let score=0;
+  if(!def.duo){
+    if(people.length<1){setStatus("온몸이 보이게 서주세요 🧍");resetHold();return;}
     hideStatus();
-    // 좌우 위치로 아빠(왼)/아이(오른) 구분: 화면상 x가 작은 쪽이 왼쪽
-    let a=people[0],b=people[1];
-    const ax=(a[23].x+a[24].x)/2, bx=(b[23].x+b[24].x)/2;
-    // 거울 화면이므로 실제 왼쪽=x큰 쪽. duoChecks p0=아빠(왼). 간단히 두 배정 모두 시도해 높은 쪽 채택.
+    score=Math.max(...people.map(p=>scorePerson(p,def.checks))); // 여러 명이면 최고점 채택
+  }else{
+    if(people.length<2){setStatus("👨‍👧 아빠와 함께! 두 사람이 나란히 보여야 해요");resetHold();return;}
+    hideStatus();
+    const a=people[0],b=people[1];
     const s1=(scorePerson(a,def.duoChecks.p0)+scorePerson(b,def.duoChecks.p1))/2;
     const s2=(scorePerson(b,def.duoChecks.p0)+scorePerson(a,def.duoChecks.p1))/2;
     score=Math.max(s1,s2);
   }
   updateGauge(score);
-  const THRESH=0.75;
   if(score>=THRESH){
     if(!holdStart)holdStart=performance.now();
     const held=(performance.now()-holdStart)/1000;
-    gaugeLabel.textContent=`좋아요! ${Math.max(0,(1.5-held)).toFixed(1)}초…`;
-    if(held>=1.5){ success(); }
-  }else{
-    resetHold();
-  }
+    gaugeLabel.textContent=`좋아요! ${Math.max(0,(HOLD_SEC-held)).toFixed(1)}초…`;
+    if(held>=HOLD_SEC)success();
+  }else resetHold();
 }
 function resetHold(){holdStart=0;}
 function updateGauge(score){
   gaugeFill.style.width=Math.min(100,score*100)+"%";
-  if(score<0.4)gaugeLabel.textContent="몸을 움직여봐요";
-  else if(score<0.75)gaugeLabel.textContent="비슷해지고 있어요…";
+  if(score<0.35)gaugeLabel.textContent="몸을 움직여봐요";
+  else if(score<THRESH)gaugeLabel.textContent="비슷해지고 있어요…";
 }
-let statusTimer=null;
 function setStatus(t){statusChip.textContent=t;statusChip.style.display="block";}
 function hideStatus(){statusChip.style.display="none";}
 
-/* 성공 처리 */
 function success(){
-  waiting=true; resetHold();
+  waiting=true;resetHold();
   const def=LETTERS[currentLetter];
   const elapsed=(performance.now()-roundStartTime)/1000;
   combo++;
-  // 별: 포즈 성공 기본 2 + 빠르면 3
-  let stars=elapsed<8?3:2;
+  let stars=elapsed<10?3:2;
   store.setStar(currentLetter,stars);
-  // 발음 유도 (보너스 별, 관대)
-  showWin(currentLetter,def,stars,elapsed);
+  showWin(currentLetter,def,stars);
 }
 
-/* ══════════════════════════════════════════
-   7. 화면 전환 & UI
-   ══════════════════════════════════════════ */
+/* ══ 7. 화면 & UI ══ */
 const screens={title:titleScreen,map:mapScreen,play:playScreen};
 function show(name){Object.values(screens).forEach(s=>s.classList.remove("active"));screens[name].classList.add("active");}
 
-// 타이틀 → 지도
-document.querySelectorAll(".big-start").forEach(b=>{
-  b.addEventListener("click",()=>{ mode=b.dataset.mode; buildMap(); show("map"); });
-});
+startBtn.addEventListener("click",()=>{buildMap();show("map");});
 mapBack.addEventListener("click",()=>show("title"));
 
 function buildMap(){
   totalStars.textContent=store.total();
   mapScroll.innerHTML="";
-  const stages = mode==="solo" ? STAGES.filter(s=>s.mode==="solo") : STAGES;
-  stages.forEach((st,si)=>{
+  GROUPS.forEach(gr=>{
     const g=document.createElement("div");g.className="stage-group";
-    g.innerHTML=`<div class="stage-label"><span class="badge">${st.badge}</span>${st.label}</div>`;
+    g.innerHTML=`<div class="stage-label"><span class="badge">${gr.badge}</span>${gr.label}</div>`;
     const tiles=document.createElement("div");tiles.className="tiles";
-    // 잠금: 이전 스테이지 별 절반 이상이면 해제(간단 규칙). 첫 스테이지는 항상 열림.
-    let prevCleared = si===0 ? true : stages[si-1].list.some(g=>store.starOf(g)>0);
-    st.list.forEach(letter=>{
+    gr.list.forEach(letter=>{
+      const def=LETTERS[letter];
       const t=document.createElement("button");
       const stars=store.starOf(letter);
-      t.className="tile"+(st.mode==="duo"?" duo":"")+(stars>0?" cleared":"")+(prevCleared?"":" locked");
+      t.className="tile"+(def.duo?" duo":"")+(stars>0?" cleared":"");
       t.innerHTML=`<span>${letter}</span>`+(stars>0?`<span class="ministar">${"★".repeat(stars)}</span>`:"");
-      if(prevCleared) t.addEventListener("click",()=>startStage(st,letter));
+      t.addEventListener("click",()=>startFrom(letter));
       tiles.appendChild(t);
     });
     g.appendChild(tiles);mapScroll.appendChild(g);
   });
 }
 
-async function startStage(stage,startLetter){
-  queue=stage.list.slice();
-  qIndex=Math.max(0,queue.indexOf(startLetter));
+async function startFrom(letter){
+  queue=FULL_ORDER.slice();
+  qIndex=queue.indexOf(letter);
   combo=0;
   show("play");
   const ok=await ensureCameraAndModel();
@@ -601,13 +544,14 @@ function loadLetter(){
   comboBox.style.display=combo>0?"block":"none";comboNum.textContent=combo;
   gaugeWrap.style.display="none";
   winOverlay.style.display="none";
-  waiting=true; // 시범 보는 동안 판정 정지
-  // 시범
+  waiting=true;
+  duoBanner.style.display=def.duo?"block":"none";
   demoSpeak.textContent=def.sound;
   demoText.textContent=def.cap;
   demoOverlay.style.display="flex";
   playDemo(currentLetter);
-  speak(currentLetter+". "+def.sound,0.9);
+  const intro=def.duo?"아빠와 함께해요! ":"";
+  speak(intro+def.name+". "+def.sound,0.92);
 }
 
 demoBtn.addEventListener("click",()=>{
@@ -617,24 +561,24 @@ demoBtn.addEventListener("click",()=>{
   roundStartTime=performance.now();
   waiting=false;
 });
-demoAgainBtn.addEventListener("click",()=>{ waiting=true;demoOverlay.style.display="flex";playDemo(currentLetter);speak(LETTERS[currentLetter].sound); });
+demoAgainBtn.addEventListener("click",()=>{waiting=true;demoOverlay.style.display="flex";
+  playDemo(currentLetter);speak(LETTERS[currentLetter].sound);});
 skipBtn.addEventListener("click",nextLetter);
-playBack.addEventListener("click",()=>{ waiting=true;cancelAnimationFrame(rafId);show("map");buildMap(); });
+playBack.addEventListener("click",()=>{waiting=true;cancelAnimationFrame(rafId);show("map");buildMap();});
 
-function showWin(letter,def,stars,elapsed){
+function showWin(letter,def,stars){
   winGlyph.textContent=letter;
   winSpeak.textContent=def.sound;
   winStars.innerHTML="";
-  for(let i=0;i<stars;i++){const s=document.createElement("span");s.textContent="⭐";s.style.animationDelay=(i*0.15)+"s";winStars.appendChild(s);}
-  // 자기경쟁 기록
-  if(combo>store.data.best.combo){ store.data.best.combo=combo;store.save();
-    winRecord.textContent=`🔥 신기록! ${combo}연속 성공!`; winRecord.style.display="block";
+  for(let i=0;i<stars;i++){const s=document.createElement("span");s.textContent="⭐";
+    s.style.animationDelay=(i*0.15)+"s";winStars.appendChild(s);}
+  if(combo>store.data.best.combo){store.data.best.combo=combo;store.save();
+    winRecord.textContent=`🔥 신기록! ${combo}연속 성공!`;winRecord.style.display="block";
   }else winRecord.style.display="none";
   winOverlay.style.display="flex";
   spawnConfetti();
-  // 성공 소리 → 발음 유도
-  speak("잘했어요! "+letter,1);
-  setTimeout(()=>speak("같이 말해볼까요? "+def.sound,0.9),1200);
+  speak("잘했어요! "+def.name,1);
+  setTimeout(()=>speak("같이 말해볼까요? "+def.sound,0.9),1300);
 }
 winNext.addEventListener("click",nextLetter);
 
@@ -642,13 +586,11 @@ function nextLetter(){
   winOverlay.style.display="none";
   qIndex++;
   if(qIndex>=queue.length){
-    // 스테이지 끝
     waiting=true;cancelAnimationFrame(rafId);
-    speak("모두 완성했어요! 대단해요!",1);
+    speak("와, 끝까지 다 했어요! 정말 대단해요!",1);
     show("map");buildMap();
     return;
   }
-  waiting=false;
   loadLetter();
 }
 
@@ -664,9 +606,7 @@ function spawnConfetti(){
     setTimeout(()=>c.remove(),3200);
   }
 }
-
-// 정리
-window.addEventListener("pagehide",()=>{ if(camStream)camStream.getTracks().forEach(t=>t.stop()); });
+window.addEventListener("pagehide",()=>{if(camStream)camStream.getTracks().forEach(t=>t.stop());});
 </script>
 </body>
 </html>
